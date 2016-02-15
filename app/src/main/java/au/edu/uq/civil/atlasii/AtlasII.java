@@ -1,13 +1,16 @@
 package au.edu.uq.civil.atlasii;
 
+import android.Manifest;
 import android.content.pm.PackageManager;
-import android.net.Uri;
+import android.location.Location;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
@@ -22,14 +25,25 @@ import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.widget.TextView;
 
-import com.google.android.gms.appindexing.Action;
-import com.google.android.gms.appindexing.AppIndex;
+import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
+import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
+import com.google.android.gms.location.LocationServices;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.io.Reader;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.Calendar;
 
-public class AtlasII extends AppCompatActivity {
-
+public class AtlasII extends AppCompatActivity implements
+        ConnectionCallbacks,
+        OnConnectionFailedListener {
     /**
      * The {@link PagerAdapter} that will provide
      * fragments for each of the sections. We use a
@@ -48,7 +62,10 @@ public class AtlasII extends AppCompatActivity {
      * ATTENTION: This was auto-generated to implement the App Indexing API.
      * See https://g.co/AppIndexing/AndroidStudio for more information.
      */
-    private GoogleApiClient client;
+    private GoogleApiClient mGoogleApiClient = null;
+    // Last known location
+    Location mLastLocation = null;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,9 +84,20 @@ public class AtlasII extends AppCompatActivity {
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-        client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
+        /// TEST
+        tabLayout.getTabAt(0).setIcon(R.drawable.ic_tab_home);
+        ///
+
+        /// UPDATE
+        // Create an instance of GoolgeAPIClient
+        if(mGoogleApiClient == null) {
+            //mGoogleApiClient = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
+            mGoogleApiClient = new GoogleApiClient.Builder(this)
+            .addConnectionCallbacks(this)
+            .addOnConnectionFailedListener(this)
+            .addApi(LocationServices.API)
+            .build();
+        }
     }
 
 
@@ -101,18 +129,7 @@ public class AtlasII extends AppCompatActivity {
 
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
-        client.connect();
-        Action viewAction = Action.newAction(
-                Action.TYPE_VIEW, // TODO: choose an action type.
-                "AtlasII Page", // TODO: Define a title for the content shown.
-                // TODO: If you have web page content that matches this app activity's content,
-                // make sure this auto-generated web page URL is correct.
-                // Otherwise, set the URL to null.
-                Uri.parse("http://host/path"),
-                // TODO: Make sure this auto-generated app deep link URI is correct.
-                Uri.parse("android-app://au.edu.uq.civil.atlasii/http/host/path")
-        );
-        AppIndex.AppIndexApi.start(client, viewAction);
+        mGoogleApiClient.connect();
     }
 
     @Override
@@ -121,18 +138,36 @@ public class AtlasII extends AppCompatActivity {
 
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
-        Action viewAction = Action.newAction(
-                Action.TYPE_VIEW, // TODO: choose an action type.
-                "AtlasII Page", // TODO: Define a title for the content shown.
-                // TODO: If you have web page content that matches this app activity's content,
-                // make sure this auto-generated web page URL is correct.
-                // Otherwise, set the URL to null.
-                Uri.parse("http://host/path"),
-                // TODO: Make sure this auto-generated app deep link URI is correct.
-                Uri.parse("android-app://au.edu.uq.civil.atlasii/http/host/path")
-        );
-        AppIndex.AppIndexApi.end(client, viewAction);
-        client.disconnect();
+        mGoogleApiClient.disconnect();
+    }
+
+    @Override
+    public void onConnected(Bundle connectionHint) {
+        /// TEST
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ) {
+            mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+            if (mLastLocation != null) {
+                TextView textView = (TextView) this.findViewById(R.id.section_label);
+                textView.setText("Latitude = " + String.valueOf(mLastLocation.getLatitude()) +
+                        "Longitude = " + String.valueOf(mLastLocation.getLongitude()));
+            }
+        }
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult result) {
+        // Refer to the javadoc for ConnectionResult to see what error codes might be returned in
+        // onConnectionFailed.
+        /// UPDATE: Log.i(TAG, "Connection failed: ConnectionResult.getErrorCode() = " + result.getErrorCode());
+    }
+
+
+    @Override
+    public void onConnectionSuspended(int cause) {
+        // The connection to Google Play services was lost for some reason. We call connect() to
+        // attempt to re-establish the connection.
+        /// UPDATE: Log.i(TAG, "Connection suspended");
+        mGoogleApiClient.connect();
     }
 
     /**
@@ -160,6 +195,81 @@ public class AtlasII extends AppCompatActivity {
             return fragment;
         }
 
+
+        /// TEST
+        private TextView txtView;
+        private class DownloadWebpageTask extends AsyncTask<String, Void, String> {
+            @Override
+            protected String doInBackground(String... urls) {
+
+                // params comes from the execute() call: params[0] is the url.
+                try {
+                    return downloadUrl(urls[0]);
+                } catch (IOException e) {
+                    return "Unable to retrieve web page. URL may be invalid.";
+                }
+            }
+            // onPostExecute displays the results of the AsyncTask.
+            @Override
+            protected void onPostExecute(String result) {
+                /// UPDATE
+                /// TEST
+                txtView.setText(result);
+                ///
+            }
+
+            // Given a URL, establishes an HttpUrlConnection and retrieves
+            // the web page content as a InputStream, which it returns as
+            // a string.
+            private String downloadUrl(String myurl) throws IOException {
+                InputStream is = null;
+                // Only display the first 500 characters of the retrieved
+                // web page content.
+                int len = 10000;
+
+                try {
+                    URL url = new URL(myurl);
+                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                    conn.setReadTimeout(10000 /* milliseconds */);
+                    conn.setConnectTimeout(15000 /* milliseconds */);
+                    conn.setRequestMethod("POST");
+                    conn.setDoInput(true);
+                    conn.setDoOutput(true);
+                    String postParameters = "username=behrang&password=123";
+                    conn.setFixedLengthStreamingMode(postParameters.getBytes().length);
+                    PrintWriter out = new PrintWriter(conn.getOutputStream());
+                    out.print(postParameters);
+                    out.close();
+
+                    // Starts the query
+                    conn.connect();
+                    int response = conn.getResponseCode();
+                    /// TEST Log.d(DEBUG_TAG, "The response is: " + response);
+                    is = conn.getInputStream();
+
+                    // Convert the InputStream into a string
+                    String contentAsString = readIt(is, len);
+                    return contentAsString;
+
+                    // Makes sure that the InputStream is closed after the app is
+                    // finished using it.
+                } finally {
+                    if (is != null) {
+                        is.close();
+                    }
+                }
+            }
+
+            // Reads an InputStream and converts it to a String.
+            public String readIt(InputStream stream, int len) throws IOException, UnsupportedEncodingException {
+                Reader reader = null;
+                reader = new InputStreamReader(stream, "UTF-8");
+                char[] buffer = new char[len];
+                reader.read(buffer);
+                return new String(buffer);
+            }
+        }
+
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
@@ -171,9 +281,19 @@ public class AtlasII extends AppCompatActivity {
                 case 1:
                 case 2:
                 case 3:
+                    /// TEST
+                    /// REMOVE when finished testing ///
+                    //NetwrokConnection nc = new NetwrokConnection(getContext());
+                    //String res = nc.login("behrang", "123");
+
+
                     rootView = inflater.inflate(R.layout.fragment_atlas_ii, container, false);
                     textView = (TextView) rootView.findViewById(R.id.section_label);
-                    textView.setText(getString(R.string.section_format, sectionNumber));
+                    //textView.setText(getString(R.string.section_format, sectionNumber));
+                    textView.setText("test");
+                    txtView = textView;
+                    /// UPDATE: AsyncTask<String, Void, String> res = new DownloadWebpageTask().execute("http://atlaservt.somee.com/Login.aspx");
+                    ///
                     break;
                 case 4:
                     // Setting the help pages' url
