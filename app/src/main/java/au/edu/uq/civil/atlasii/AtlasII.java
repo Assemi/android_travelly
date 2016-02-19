@@ -1,7 +1,10 @@
 package au.edu.uq.civil.atlasii;
 
 import android.Manifest;
+import android.app.PendingIntent;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -17,6 +20,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -29,8 +33,11 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
 import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
+import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsRequest;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -65,7 +72,14 @@ public class AtlasII extends AppCompatActivity implements
     private GoogleApiClient mGoogleApiClient = null;
     // Last known location
     Location mLastLocation = null;
-
+    // Location request
+    LocationRequest mLocationRequest = null;
+    // Location update time
+    String mLastUpdateTime = null;
+    // Log file
+    FileOutputStream logFile = null;
+    // Database
+    AtlasOpenHelper dbHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,6 +112,10 @@ public class AtlasII extends AppCompatActivity implements
             .addApi(LocationServices.API)
             .build();
         }
+
+        /// UPDATE
+        // Create the database
+        dbHandler = new AtlasOpenHelper(this.getApplicationContext());
     }
 
 
@@ -149,8 +167,38 @@ public class AtlasII extends AppCompatActivity implements
             if (mLastLocation != null) {
                 TextView textView = (TextView) this.findViewById(R.id.section_label);
                 textView.setText("Latitude = " + String.valueOf(mLastLocation.getLatitude()) +
-                        "Longitude = " + String.valueOf(mLastLocation.getLongitude()));
+                        " Longitude = " + String.valueOf(mLastLocation.getLongitude()));
             }
+        }
+
+        // Checking the current state of the location settings
+        //PendingResult<LocationSettingsResult> result =
+        //        LocationServices.SettingsApi.checkLocationSettings(mGoogleApiClient,
+        //                builder.build());
+
+        // Creating a log file
+        /*try {
+            logFile = openFileOutput("ATLAS_Log.log", Context.MODE_APPEND);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }*/
+
+        // Request location updates
+        //if (mRequestingLocationUpdates) {
+        /*if (true) {
+            startLocationUpdates();
+        }
+        */
+
+        Intent intent = new Intent(this, LocationReceiver.class);
+        PendingIntent locationIntent = PendingIntent.getBroadcast(getApplicationContext(), 14872, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+        // Creating a location request
+        createLocationRequest();
+        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
+                .addLocationRequest(mLocationRequest);
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ) {
+            LocationServices.FusedLocationApi.requestLocationUpdates(
+                    mGoogleApiClient, mLocationRequest, locationIntent);
         }
     }
 
@@ -161,13 +209,39 @@ public class AtlasII extends AppCompatActivity implements
         /// UPDATE: Log.i(TAG, "Connection failed: ConnectionResult.getErrorCode() = " + result.getErrorCode());
     }
 
-
     @Override
     public void onConnectionSuspended(int cause) {
         // The connection to Google Play services was lost for some reason. We call connect() to
         // attempt to re-establish the connection.
         /// UPDATE: Log.i(TAG, "Connection suspended");
         mGoogleApiClient.connect();
+    }
+
+    // Creating location request by specifying the request parameters
+    protected void createLocationRequest() {
+        mLocationRequest = new LocationRequest();
+        mLocationRequest.setInterval(2000);
+        mLocationRequest.setFastestInterval(1000);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+    }
+
+    /*@Override
+    public void onLocationChanged(Location location) {
+        mLastLocation = location;
+        mLastUpdateTime = DateFormat.getTimeInstance().format(new Date());
+        //updateUI();
+        updateLog();
+    }*/
+
+    private void updateLog() {
+        String locLog = mLastUpdateTime + " Lat: " + String.valueOf(mLastLocation.getLatitude()) +
+                " Long: " + String.valueOf(mLastLocation.getLongitude());
+        Log.d("Location", locLog);
+        /*try {
+            logFile.write(locLog.getBytes());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }*/
     }
 
     /**
@@ -280,7 +354,6 @@ public class AtlasII extends AppCompatActivity implements
             switch (sectionNumber) {
                 case 1:
                 case 2:
-                case 3:
                     /// TEST
                     /// REMOVE when finished testing ///
                     //NetwrokConnection nc = new NetwrokConnection(getContext());
@@ -294,6 +367,19 @@ public class AtlasII extends AppCompatActivity implements
                     txtView = textView;
                     /// UPDATE: AsyncTask<String, Void, String> res = new DownloadWebpageTask().execute("http://atlaservt.somee.com/Login.aspx");
                     ///
+                    break;
+                case 3:
+                    String tmp = "";
+                    AtlasOpenHelper dbHandler = new AtlasOpenHelper(this.getContext());
+                    Cursor crsr = dbHandler.getReadableDatabase().query("HTS_GeoData", null, null, null, null, null, null, null);
+                    crsr.moveToFirst();
+                    do {
+                        tmp = tmp + "\r\n" + crsr.getString(crsr.getColumnIndex("TimeStamp"));
+                    }while (crsr.moveToNext());
+
+                    rootView = inflater.inflate(R.layout.fragment_atlas_ii, container, false);
+                    textView = (TextView) rootView.findViewById(R.id.section_label);
+                    textView.setText(tmp);
                     break;
                 case 4:
                     // Setting the help pages' url
