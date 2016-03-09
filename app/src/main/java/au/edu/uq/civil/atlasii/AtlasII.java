@@ -17,7 +17,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
@@ -86,8 +85,8 @@ public class AtlasII extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_atlas_ii);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        // Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        // setSupportActionBar(toolbar);
         // Create the adapter that will return a fragment for each of the primary sections of the
         // activity.
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
@@ -98,9 +97,14 @@ public class AtlasII extends AppCompatActivity implements
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
-        /// TEST
+
+        // Set the action bar icons
         tabLayout.getTabAt(0).setIcon(R.drawable.ic_tab_home);
-        ///
+        tabLayout.getTabAt(1).setIcon(R.drawable.ic_history);
+        tabLayout.getTabAt(2).setIcon(R.drawable.ic_profile);
+        tabLayout.getTabAt(3).setIcon(R.drawable.ic_help);
+        tabLayout.getTabAt(4).setIcon(R.drawable.ic_info);
+
 
         /// UPDATE
         // Create an instance of GoolgeAPIClient
