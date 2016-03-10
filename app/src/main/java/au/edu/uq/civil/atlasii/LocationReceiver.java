@@ -3,7 +3,6 @@ package au.edu.uq.civil.atlasii;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.database.sqlite.SQLiteDatabase;
 
 import com.google.android.gms.location.LocationResult;
 
@@ -24,7 +23,7 @@ public class LocationReceiver extends BroadcastReceiver {
             String latitude = String.valueOf(location.getLastLocation().getLatitude());
             String longitude = String.valueOf(location.getLastLocation().getLongitude());
             //Log.d("Location", locLog);
-            AtlasOpenHelper dbHandler = new AtlasOpenHelper(context);
+            /*AtlasOpenHelper dbHandler = new AtlasOpenHelper(context);
             String temp = "insert into HTS_GeoData (TimeStamp, Longitude, Latitude) values ('" +
                     timeStamp + "', " + longitude + ", " + latitude + ")";
             SQLiteDatabase db = dbHandler.getWritableDatabase();
@@ -33,7 +32,7 @@ public class LocationReceiver extends BroadcastReceiver {
                     timeStamp + "', " + longitude + ", " + latitude + ")");
             db.setTransactionSuccessful();
             db.endTransaction();
-            dbHandler.close();
+            dbHandler.close();*/
         }
     }
 }

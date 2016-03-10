@@ -4,7 +4,6 @@ import android.Manifest;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -21,22 +20,23 @@ import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
 import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.OnMapReadyCallback;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -47,9 +47,14 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Calendar;
 
+/**
+ * Main activity of the app:
+ * It shows a pager layout with the application tabs.
+ **/
 public class AtlasII extends AppCompatActivity implements
         ConnectionCallbacks,
         OnConnectionFailedListener {
+
     /**
      * The {@link PagerAdapter} that will provide
      * fragments for each of the sections. We use a
@@ -64,27 +69,41 @@ public class AtlasII extends AppCompatActivity implements
      * The {@link ViewPager} that will host the section contents.
      */
     private ViewPager mViewPager;
+
     /**
-     * ATTENTION: This was auto-generated to implement the App Indexing API.
-     * See https://g.co/AppIndexing/AndroidStudio for more information.
+     * ATTENTION: This was auto-generated to implement the Google API.
      */
     private GoogleApiClient mGoogleApiClient = null;
+
     // Last known location
     Location mLastLocation = null;
+
     // Location request
     LocationRequest mLocationRequest = null;
+
+    // Location request parameters
+    private static final long INTERVAL = 2000; // 2 seconds
+    private static final long FASTEST_INTERVAL = 1000; // 1 seconds
+
     // Location update time
     String mLastUpdateTime = null;
-    // Log file
-    FileOutputStream logFile = null;
+
+    // Fragment manager
+    FragmentManager mFragmentManager;
+
+    // TODO: Update the database management procedure
     // Database
     AtlasOpenHelper dbHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_atlas_ii);
 
+        /*
+            Initiating app's visual appearance
+         */
         // Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         // setSupportActionBar(toolbar);
         // Create the adapter that will return a fragment for each of the primary sections of the
@@ -94,7 +113,6 @@ public class AtlasII extends AppCompatActivity implements
         // Set up the ViewPager with the sections adapter.
         mViewPager = (ViewPager) findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
-
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
 
@@ -106,43 +124,43 @@ public class AtlasII extends AppCompatActivity implements
         tabLayout.getTabAt(4).setIcon(R.drawable.ic_info);
 
 
-        /// UPDATE
-        // Create an instance of GoolgeAPIClient
-        if(mGoogleApiClient == null) {
-            //mGoogleApiClient = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
-            mGoogleApiClient = new GoogleApiClient.Builder(this)
-            .addConnectionCallbacks(this)
-            .addOnConnectionFailedListener(this)
-            .addApi(LocationServices.API)
-            .build();
+        /*
+            Initiating Google Play Services
+         */
+        // Checking whether Google Play Services are available or not
+        int status = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
+        if(status == ConnectionResult.SUCCESS) {
+            createLocationRequest();
+            // Create an instance of GoolgeAPIClient
+            if (mGoogleApiClient == null) {
+                mGoogleApiClient = new GoogleApiClient.Builder(this)
+                        .addConnectionCallbacks(this)
+                        .addOnConnectionFailedListener(this)
+                        .addApi(LocationServices.API)
+                        .build();
+            }
+
+            mFragmentManager = getSupportFragmentManager();
+        } else { // Error: Google Play Services are not available
+            GooglePlayServicesUtil.getErrorDialog(status, this, 0).show();
+            finish();
         }
 
-        /// UPDATE
+        // TODO: Update database creation procedure
         // Create the database
         dbHandler = new AtlasOpenHelper(this.getApplicationContext());
     }
 
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_atlas_ii, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
+    /**
+     * Location services
+     */
+    // Creating location request by specifying the request parameters
+    protected void createLocationRequest() {
+        mLocationRequest = new LocationRequest();
+        mLocationRequest.setInterval(INTERVAL);
+        mLocationRequest.setFastestInterval(FASTEST_INTERVAL);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
     }
 
     @Override
@@ -175,6 +193,7 @@ public class AtlasII extends AppCompatActivity implements
             }
         }
 
+        // TODO: Update this section- remove if not used anymore
         // Checking the current state of the location settings
         //PendingResult<LocationSettingsResult> result =
         //        LocationServices.SettingsApi.checkLocationSettings(mGoogleApiClient,
@@ -191,8 +210,7 @@ public class AtlasII extends AppCompatActivity implements
         //if (mRequestingLocationUpdates) {
         /*if (true) {
             startLocationUpdates();
-        }
-        */
+        }*/
 
         Intent intent = new Intent(this, LocationReceiver.class);
         PendingIntent locationIntent = PendingIntent.getBroadcast(getApplicationContext(), 14872, intent, PendingIntent.FLAG_CANCEL_CURRENT);
@@ -221,14 +239,6 @@ public class AtlasII extends AppCompatActivity implements
         mGoogleApiClient.connect();
     }
 
-    // Creating location request by specifying the request parameters
-    protected void createLocationRequest() {
-        mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(2000);
-        mLocationRequest.setFastestInterval(1000);
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-    }
-
     /*@Override
     public void onLocationChanged(Location location) {
         mLastLocation = location;
@@ -248,15 +258,19 @@ public class AtlasII extends AppCompatActivity implements
         }*/
     }
 
+
     /**
      * A placeholder fragment containing a simple view.
      */
-    public static class PlaceholderFragment extends Fragment {
+    public static class PlaceholderFragment extends Fragment{
         /**
          * The fragment argument representing the section number for this
          * fragment.
          */
         private static final String ARG_SECTION_NUMBER = "section_number";
+
+        // Google Map on Today tab
+        MapView mMapView = null;
 
         public PlaceholderFragment() {
         }
@@ -276,6 +290,7 @@ public class AtlasII extends AppCompatActivity implements
 
         /// TEST
         private TextView txtView;
+
         private class DownloadWebpageTask extends AsyncTask<String, Void, String> {
             @Override
             protected String doInBackground(String... urls) {
@@ -348,6 +363,31 @@ public class AtlasII extends AppCompatActivity implements
             }
         }
 
+
+        @Override
+        public void onPause() {
+            super.onPause();
+            if(mMapView != null) {
+                mMapView.onPause();
+            }
+        }
+
+        @Override
+        public void onResume() {
+            super.onResume();
+            if(mMapView != null) {
+                mMapView.onResume();
+            }
+        }
+
+        @Override
+        public void onDestroy() {
+            super.onDestroy();
+            if(mMapView != null) {
+                mMapView.onDestroy();
+            }
+        }
+
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
@@ -356,8 +396,26 @@ public class AtlasII extends AppCompatActivity implements
             TextView textView;
 
             switch (sectionNumber) {
-                case 1:
-                case 2:
+                case 1: // Today tab
+                    // Loading the today page
+                    rootView = inflater.inflate(R.layout.atlas_today_page, container, false);
+
+                    // Initiating Google Map
+                    mMapView = (MapView) rootView.findViewById(R.id.today_map);
+                    mMapView.onCreate(savedInstanceState);
+
+                    mMapView.getMapAsync(new OnMapReadyCallback() {
+                        @Override
+                        public void onMapReady(GoogleMap googleMap) {
+                            googleMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+                            googleMap.setIndoorEnabled(true);
+                            googleMap.getUiSettings().setZoomControlsEnabled(true);
+                        }
+                    });
+
+                    break;
+
+                case 2: // History tab
                     /// TEST
                     /// REMOVE when finished testing ///
                     //NetwrokConnection nc = new NetwrokConnection(getContext());
@@ -372,20 +430,22 @@ public class AtlasII extends AppCompatActivity implements
                     /// UPDATE: AsyncTask<String, Void, String> res = new DownloadWebpageTask().execute("http://atlaservt.somee.com/Login.aspx");
                     ///
                     break;
-                case 3:
+
+                case 3: // Profile tab
                     String tmp = "";
-                    AtlasOpenHelper dbHandler = new AtlasOpenHelper(this.getContext());
+                    /*AtlasOpenHelper dbHandler = new AtlasOpenHelper(this.getContext());
                     Cursor crsr = dbHandler.getReadableDatabase().query("HTS_GeoData", null, null, null, null, null, null, null);
                     crsr.moveToFirst();
                     do {
                         tmp = tmp + "\r\n" + crsr.getString(crsr.getColumnIndex("TimeStamp"));
-                    }while (crsr.moveToNext());
+                    }while (crsr.moveToNext());*/
 
                     rootView = inflater.inflate(R.layout.fragment_atlas_ii, container, false);
                     textView = (TextView) rootView.findViewById(R.id.section_label);
                     textView.setText(tmp);
                     break;
-                case 4:
+
+                case 4: // Help tab
                     // Setting the help pages' url
                     String helpURL = "http://atlaservt.somee.com/mobile/index.html";
                     // Loading the help pages
@@ -394,7 +454,8 @@ public class AtlasII extends AppCompatActivity implements
                     webView.getSettings().setJavaScriptEnabled(true);
                     webView.loadUrl(helpURL);
                     break;
-                case 5:
+
+                case 5: // Info tab
                     // Retrieving the app's version
                     String pVersion = "X.X.X";
                     PackageManager pManager = getActivity().getPackageManager();
@@ -404,8 +465,10 @@ public class AtlasII extends AppCompatActivity implements
                     } catch (PackageManager.NameNotFoundException e) {
                         e.printStackTrace();
                     }
+
                     // Getting the current date for copyright information
                     Calendar curCal = Calendar.getInstance();
+
                     // Loading the about page
                     rootView = inflater.inflate(R.layout.about_atlas_page, container, false);
                     textView = (TextView) rootView.findViewById(R.id.txtAboutAtlas);
