@@ -15,7 +15,7 @@ import java.net.URL;
 
 /**
  * Created by Behrang Assemi on 11/02/2016.
- */
+ **/
 
 // The network communications are handled by this class.
 public class NetwrokConnection {
@@ -61,9 +61,6 @@ public class NetwrokConnection {
         @Override
         protected void onPostExecute(String result) {
             /// UPDATE
-            /// TEST
-            ;
-            ///
         }
 
         // Given a URL, establishes an HttpUrlConnection and retrieves

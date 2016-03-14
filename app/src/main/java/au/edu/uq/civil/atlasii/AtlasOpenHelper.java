@@ -6,6 +6,8 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 /**
  * Created by Behrang Assemi on 18/02/2016.
+ *
+ * Database helper class
  */
 public class AtlasOpenHelper extends SQLiteOpenHelper {
     private static final int DATABASE_VERSION = 2;
@@ -13,8 +15,8 @@ public class AtlasOpenHelper extends SQLiteOpenHelper {
     private static final String GEODATA_TABLE_CREATE =
             "CREATE TABLE " + GEODATA_TABLE_NAME + " (" +
                     "TimeStamp TEXT, " +
-                    "Longitude REAL, " +
-                    "Latitude REAL);";
+                    "Latitude REAL, " +
+                    "Longitude REAL);";
 
     AtlasOpenHelper(Context context) {
         super(context, "HTS.db", null, DATABASE_VERSION);

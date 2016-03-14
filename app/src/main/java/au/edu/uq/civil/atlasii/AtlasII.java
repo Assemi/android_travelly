@@ -3,7 +3,9 @@ package au.edu.uq.civil.atlasii;
 import android.Manifest;
 import android.app.PendingIntent;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -23,6 +25,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -33,9 +36,12 @@ import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListe
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -93,7 +99,7 @@ public class AtlasII extends AppCompatActivity implements
 
     // TODO: Update the database management procedure
     // Database
-    AtlasOpenHelper dbHandler;
+    AtlasOpenHelper mDBHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -146,9 +152,9 @@ public class AtlasII extends AppCompatActivity implements
             finish();
         }
 
-        // TODO: Update database creation procedure
-        // Create the database
-        dbHandler = new AtlasOpenHelper(this.getApplicationContext());
+        // TODO: Update the database handling procedures, using providers
+        // Get the handler to the database
+        mDBHandler = new AtlasOpenHelper(this.getApplicationContext());
     }
 
 
@@ -413,6 +419,18 @@ public class AtlasII extends AppCompatActivity implements
                         }
                     });
 
+                    // TODO: for test- remove later
+                    LatLng LOWER_MANHATTAN = new LatLng(40.722543, -73.998585);
+                    LatLng TIMES_SQUARE = new LatLng(40.7577, -73.9857);
+                    GoogleMap googleMap = mMapView.getMap();
+                    googleMap.addPolyline((new PolylineOptions())
+                            .add(TIMES_SQUARE, LOWER_MANHATTAN,
+                                    TIMES_SQUARE).width(5).color(Color.BLUE)
+                                    .geodesic(true));
+                    // move camera to zoom on map
+                    googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LOWER_MANHATTAN,
+                            13));
+
                     break;
 
                 case 2: // History tab
@@ -429,20 +447,52 @@ public class AtlasII extends AppCompatActivity implements
                     txtView = textView;
                     /// UPDATE: AsyncTask<String, Void, String> res = new DownloadWebpageTask().execute("http://atlaservt.somee.com/Login.aspx");
                     ///
-                    break;
 
-                case 3: // Profile tab
-                    String tmp = "";
                     /*AtlasOpenHelper dbHandler = new AtlasOpenHelper(this.getContext());
                     Cursor crsr = dbHandler.getReadableDatabase().query("HTS_GeoData", null, null, null, null, null, null, null);
                     crsr.moveToFirst();
                     do {
                         tmp = tmp + "\r\n" + crsr.getString(crsr.getColumnIndex("TimeStamp"));
                     }while (crsr.moveToNext());*/
+                    break;
 
-                    rootView = inflater.inflate(R.layout.fragment_atlas_ii, container, false);
-                    textView = (TextView) rootView.findViewById(R.id.section_label);
-                    textView.setText(tmp);
+                case 3: // Profile tab
+                    rootView = inflater.inflate(R.layout.atlas_profile_page, container, false);
+
+                    // Retrieving the participant's username and email
+                    SharedPreferences settings = getActivity().getSharedPreferences(getContext().getString(R.string.shared_preferences), 0);
+                    String username = settings.getString("Username", "");
+                    String email = settings.getString("Email", "");
+
+                    // Showing the participant's username and email
+                    TextView textViewUsername = (TextView) rootView.findViewById(R.id.textview_profile_username);
+                    TextView textViewEmail = (TextView) rootView.findViewById(R.id.textview_profile_email);
+                    textViewUsername.setText("Username: " + username);
+                    textViewEmail.setText("Email: " + email);
+
+                    // Setting the button action listeners
+                    // Logout button:
+                    Button logoutButton = (Button) rootView.findViewById(R.id.button_logout);
+                    logoutButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            signOut();
+                        }
+                    });
+                    // Take Survey button:
+                    Button takeSurveyButton = (Button) rootView.findViewById(R.id.button_surveys);
+                    takeSurveyButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            takeSurvey();
+                        }
+                    });
+
+                    // TODO: For test, remove later
+                    //ListView participantListView = (ListView) rootView.findViewById(R.id.participant_info);
+                    //ArrayAdapter<String> stringArrayAdapter = new ArrayAdapter<String>(getContext(), R.layout.listitem_text, new String[]{"A", "B"});
+                    //participantListView.setAdapter(stringArrayAdapter);
+
                     break;
 
                 case 4: // Help tab
@@ -470,7 +520,7 @@ public class AtlasII extends AppCompatActivity implements
                     Calendar curCal = Calendar.getInstance();
 
                     // Loading the about page
-                    rootView = inflater.inflate(R.layout.about_atlas_page, container, false);
+                    rootView = inflater.inflate(R.layout.atlas_about_page, container, false);
                     textView = (TextView) rootView.findViewById(R.id.txtAboutAtlas);
                     textView.setText("ATLAS II Version " + pVersion + "\r\n" +
                             "Copyright 2012 - " + curCal.get(Calendar.YEAR) + "\r\n" +
@@ -484,6 +534,29 @@ public class AtlasII extends AppCompatActivity implements
             }
 
             return rootView;
+        }
+
+        private void takeSurvey() {
+            // TODO: Update
+            // The user is redirected to the surveys activity
+            Intent intent = new Intent(getContext(), SurveyListActivity.class);
+            startActivity(intent);
+        }
+
+        private void signOut() {
+            // Retrieving shared preferences to remove the credentials
+            SharedPreferences settings = getActivity().getSharedPreferences(getContext().getString(R.string.shared_preferences), 0);
+            SharedPreferences.Editor editor = settings.edit();
+            editor.remove("Username");
+            editor.remove("Password");
+            editor.remove("Email");
+            editor.commit();
+
+            // The user is redirected to the login activity
+            Intent intent = new Intent(getContext(), LoginActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(intent);
+            getActivity().finish();
         }
     }
 

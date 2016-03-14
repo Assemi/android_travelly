@@ -5,6 +5,7 @@ import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -18,18 +19,20 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLEncoder;
+
 /**
  * A login screen that offers login via email/password.
  */
 public class LoginActivity extends AppCompatActivity {
-
-    /**
-     * A dummy authentication store containing known user names and passwords.
-     * TODO: remove after connecting to a real authentication system.
-     */
-    private static final String[] DUMMY_CREDENTIALS = new String[]{
-            "behrang:123", "test:456"
-    };
 
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
@@ -164,8 +167,9 @@ public class LoginActivity extends AppCompatActivity {
      */
     public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
 
-        private final String mUsername;
-        private final String mPassword;
+        private String mUsername;
+        private String mPassword;
+        private String mResult = "";
 
         UserLoginTask(String username, String password) {
             mUsername = username;
@@ -174,25 +178,97 @@ public class LoginActivity extends AppCompatActivity {
 
         @Override
         protected Boolean doInBackground(Void... params) {
-            // TODO: attempt authentication against a network service.
-
+            // Attempt authentication against a network service.
             try {
-                // Simulate network access.
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                return false;
-            }
-
-            for (String credential : DUMMY_CREDENTIALS) {
-                String[] pieces = credential.split(":");
-                if (pieces[0].equals(mUsername)) {
-                    // Account exists, return true if the password matches.
-                    return pieces[1].equals(mPassword);
-                }
+                return signIn();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
 
             // TODO: register the new account here.
             return true;
+        }
+
+        // This method authenticates user on the server
+        private boolean signIn() throws IOException {
+
+            InputStream inputStream = null;
+            String contentAsString = "";
+            boolean result = false;
+            String urlParameters = "username=" + URLEncoder.encode(mUsername, "UTF-8") +
+                    "&password=" + URLEncoder.encode(mPassword, "UTF-8");
+
+            try {
+                // Creating request URL
+                Uri.Builder builder = new Uri.Builder();
+                builder.scheme("http")
+                        .authority(getString(R.string.atlas_server_url))
+                        .appendPath(getString(R.string.path_signin));
+                String myUrl = builder.build().toString();
+                URL url = new URL(builder.build().toString());
+
+                // Requesting the server
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setReadTimeout(10000 /* milliseconds */);
+                conn.setConnectTimeout(15000 /* milliseconds */);
+                conn.setRequestMethod("POST");
+                conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+                conn.setRequestProperty("Content-Length", "" + Integer.toString(urlParameters.getBytes().length));
+                conn.setRequestProperty("Content-Language", "en-US");
+                conn.setUseCaches(false);
+                conn.setDoInput(true);
+                conn.setDoOutput(true);
+
+                //Send request
+                DataOutputStream wr = new DataOutputStream (
+                        conn.getOutputStream ());
+                wr.writeBytes(urlParameters);
+                wr.flush();
+                wr.close();
+
+                // Starting the query
+                conn.connect();
+                int response = conn.getResponseCode();
+
+                // Checking whether the results are fine
+                if(response == 200) {
+                    result = true;
+                    inputStream = conn.getInputStream();
+                    // Convert the InputStream into a string
+                    mResult = readIt(inputStream);
+                }
+                // TODO: Change- Errors should be managed and appropriate messages should be shown
+                // Makes sure that the InputStream is closed after the app is
+                // finished using it.
+            } finally {
+                if (inputStream != null) {
+                    inputStream.close();
+                }
+            }
+
+            return result;
+        }
+
+        // Reads an InputStream and converts it to a String
+        public String readIt(InputStream stream) throws IOException, UnsupportedEncodingException {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+            StringBuilder sb = new StringBuilder();
+
+            String line = null;
+            try {
+                while ((line = reader.readLine()) != null) {
+                    sb.append(line).append('\n');
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                try {
+                    stream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            return sb.toString();
         }
 
         @Override
@@ -201,13 +277,17 @@ public class LoginActivity extends AppCompatActivity {
             showProgress(false);
 
             if (success) {
+                // Retrieving the email address from the server response
+                // Finding the email in the response
+                int inx = mResult.indexOf("?email=");
+                String email = mResult.substring(inx + 7, mResult.indexOf("&", inx + 1));
+
                 // Storing the username, password and email in shared preferences
                 SharedPreferences settings = getSharedPreferences(getApplicationContext().getString(R.string.shared_preferences), 0);
                 SharedPreferences.Editor editor = settings.edit();
                 editor.putString("Username", mUsername);
                 editor.putString("Password", mPassword);
-                // TODO: Retrieve and add email address here
-                editor.putString("Email", "XXX");
+                editor.putString("Email", email);
                 // Commit the edits!
                 editor.commit();
 

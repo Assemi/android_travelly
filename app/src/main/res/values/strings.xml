@@ -5,6 +5,10 @@
     <string name="title_activity_login">Sign in</string>
     <string name="shared_preferences">Atlas_Prefs</string>
 
+    <!-- Strings related to network addresses -->
+    <string name="atlas_server_url">atlaservt.somee.com</string>
+    <string name="path_signin">Login.aspx</string>
+
     <!-- Strings related to login -->
     <string name="prompt_email">Username</string>
     <string name="prompt_password">Password</string>
@@ -14,6 +18,7 @@
     <!--string name="error_invalid_password">This password is too short</string-->
     <string name="error_incorrect_password">This password is incorrect</string>
     <string name="error_field_required">This field is required</string>
+    <string name="title_activity_survey_list">Select a Survey</string>
     <!--string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
     </string-->

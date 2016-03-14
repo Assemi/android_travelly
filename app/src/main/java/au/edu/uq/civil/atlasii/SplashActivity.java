@@ -21,7 +21,7 @@ public class SplashActivity extends AppCompatActivity {
         Thread timerThread = new Thread(){
             public void run(){
                 try {
-                    sleep(3000);
+                    sleep(2000);
                 } catch(InterruptedException e) {
                     e.printStackTrace();
                 } finally {
@@ -33,12 +33,16 @@ public class SplashActivity extends AppCompatActivity {
                     // If the user has not already signed in, he/she is redirected to sign in activity
                     if(username == "") {
                         Intent intent = new Intent(SplashActivity.this, LoginActivity.class);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         startActivity(intent);
+                        finish();
                     }
                     // The user has already signed in and is redirected to the main application activity
                     else {
                         Intent intent = new Intent(SplashActivity.this, AtlasII.class);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         startActivity(intent);
+                        finish();
                     }
                 }
             }
