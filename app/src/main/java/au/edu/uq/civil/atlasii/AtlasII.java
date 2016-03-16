@@ -90,7 +90,7 @@ public class AtlasII extends AppCompatActivity implements
 
     // TODO: Update the database management procedure
     // Database
-    AtlasOpenHelper mDBHandler;
+    // AtlasDbHelper mDBHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -145,7 +145,7 @@ public class AtlasII extends AppCompatActivity implements
 
         // TODO: Update the database handling procedures, using providers
         // Get the handler to the database
-        mDBHandler = new AtlasOpenHelper(this.getApplicationContext());
+        // mDBHandler = new AtlasDbHelper(this.getApplicationContext());
     }
 
 
@@ -359,7 +359,7 @@ public class AtlasII extends AppCompatActivity implements
                     //textView.setText(getString(R.string.section_format, sectionNumber));
                     textView.setText("test");
 
-                    /*AtlasOpenHelper dbHandler = new AtlasOpenHelper(this.getContext());
+                    /*AtlasDbHelper dbHandler = new AtlasDbHelper(this.getContext());
                     Cursor crsr = dbHandler.getReadableDatabase().query("HTS_GeoData", null, null, null, null, null, null, null);
                     crsr.moveToFirst();
                     do {
