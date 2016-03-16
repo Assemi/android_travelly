@@ -8,6 +8,7 @@
     <!-- Strings related to network addresses -->
     <string name="atlas_server_url">atlaservt.somee.com</string>
     <string name="path_signin">Login.aspx</string>
+    <string name="path_active_surveys">GetActiveSurveys.aspx</string>
 
     <!-- Strings related to login -->
     <string name="prompt_email">Username</string>
@@ -19,6 +20,7 @@
     <string name="error_incorrect_password">This password is incorrect</string>
     <string name="error_field_required">This field is required</string>
     <string name="title_activity_survey_list">Select a Survey</string>
+    <string name="title_activity_test">Test Activity</string>
     <!--string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
     </string-->

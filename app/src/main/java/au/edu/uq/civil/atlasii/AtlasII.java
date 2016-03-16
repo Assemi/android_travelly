@@ -7,7 +7,6 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -43,14 +42,6 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.PolylineOptions;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.io.Reader;
-import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.Calendar;
 
 /**
@@ -293,83 +284,6 @@ public class AtlasII extends AppCompatActivity implements
             return fragment;
         }
 
-
-        /// TEST
-        private TextView txtView;
-
-        private class DownloadWebpageTask extends AsyncTask<String, Void, String> {
-            @Override
-            protected String doInBackground(String... urls) {
-
-                // params comes from the execute() call: params[0] is the url.
-                try {
-                    return downloadUrl(urls[0]);
-                } catch (IOException e) {
-                    return "Unable to retrieve web page. URL may be invalid.";
-                }
-            }
-            // onPostExecute displays the results of the AsyncTask.
-            @Override
-            protected void onPostExecute(String result) {
-                /// UPDATE
-                /// TEST
-                txtView.setText(result);
-                ///
-            }
-
-            // Given a URL, establishes an HttpUrlConnection and retrieves
-            // the web page content as a InputStream, which it returns as
-            // a string.
-            private String downloadUrl(String myurl) throws IOException {
-                InputStream is = null;
-                // Only display the first 500 characters of the retrieved
-                // web page content.
-                int len = 10000;
-
-                try {
-                    URL url = new URL(myurl);
-                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                    conn.setReadTimeout(10000 /* milliseconds */);
-                    conn.setConnectTimeout(15000 /* milliseconds */);
-                    conn.setRequestMethod("POST");
-                    conn.setDoInput(true);
-                    conn.setDoOutput(true);
-                    String postParameters = "username=behrang&password=123";
-                    conn.setFixedLengthStreamingMode(postParameters.getBytes().length);
-                    PrintWriter out = new PrintWriter(conn.getOutputStream());
-                    out.print(postParameters);
-                    out.close();
-
-                    // Starts the query
-                    conn.connect();
-                    int response = conn.getResponseCode();
-                    /// TEST Log.d(DEBUG_TAG, "The response is: " + response);
-                    is = conn.getInputStream();
-
-                    // Convert the InputStream into a string
-                    String contentAsString = readIt(is, len);
-                    return contentAsString;
-
-                    // Makes sure that the InputStream is closed after the app is
-                    // finished using it.
-                } finally {
-                    if (is != null) {
-                        is.close();
-                    }
-                }
-            }
-
-            // Reads an InputStream and converts it to a String.
-            public String readIt(InputStream stream, int len) throws IOException, UnsupportedEncodingException {
-                Reader reader = null;
-                reader = new InputStreamReader(stream, "UTF-8");
-                char[] buffer = new char[len];
-                reader.read(buffer);
-                return new String(buffer);
-            }
-        }
-
-
         @Override
         public void onPause() {
             super.onPause();
@@ -444,9 +358,6 @@ public class AtlasII extends AppCompatActivity implements
                     textView = (TextView) rootView.findViewById(R.id.section_label);
                     //textView.setText(getString(R.string.section_format, sectionNumber));
                     textView.setText("test");
-                    txtView = textView;
-                    /// UPDATE: AsyncTask<String, Void, String> res = new DownloadWebpageTask().execute("http://atlaservt.somee.com/Login.aspx");
-                    ///
 
                     /*AtlasOpenHelper dbHandler = new AtlasOpenHelper(this.getContext());
                     Cursor crsr = dbHandler.getReadableDatabase().query("HTS_GeoData", null, null, null, null, null, null, null);
@@ -537,7 +448,6 @@ public class AtlasII extends AppCompatActivity implements
         }
 
         private void takeSurvey() {
-            // TODO: Update
             // The user is redirected to the surveys activity
             Intent intent = new Intent(getContext(), SurveyListActivity.class);
             startActivity(intent);
