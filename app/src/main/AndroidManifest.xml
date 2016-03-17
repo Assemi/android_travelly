@@ -58,6 +58,12 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="au.edu.uq.civil.atlasii.AtlasII" />
         </activity>
+
+        <!-- Providers -->
+        <provider
+            android:authorities="au.edu.uq.civil.atlasii"
+            android:name=".data.AtlasProvider" />
+
     </application>
 
 </manifest>

@@ -5,15 +5,20 @@ import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Color;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.app.LoaderManager;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
@@ -43,6 +48,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.util.Calendar;
+
+import au.edu.uq.civil.atlasii.data.AtlasContract;
 
 /**
  * Main activity of the app:
@@ -259,7 +266,8 @@ public class AtlasII extends AppCompatActivity implements
     /**
      * A placeholder fragment containing a simple view.
      */
-    public static class PlaceholderFragment extends Fragment{
+    public static class PlaceholderFragment extends Fragment implements
+            LoaderManager.LoaderCallbacks<Cursor> {
         /**
          * The fragment argument representing the section number for this
          * fragment.
@@ -268,6 +276,12 @@ public class AtlasII extends AppCompatActivity implements
 
         // Google Map on Today tab
         MapView mMapView = null;
+
+        // Loader ID
+        private static final int GEO_LOADER = 0;
+
+        // Last location
+        LatLng mLastLocation = null;
 
         public PlaceholderFragment() {
         }
@@ -309,6 +323,12 @@ public class AtlasII extends AppCompatActivity implements
         }
 
         @Override
+        public void onActivityCreated(Bundle savedInstanceState) {
+            getLoaderManager().initLoader(GEO_LOADER, null, this);
+            super.onActivityCreated(savedInstanceState);
+        }
+
+        @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
             int sectionNumber = getArguments().getInt(ARG_SECTION_NUMBER);
@@ -327,44 +347,17 @@ public class AtlasII extends AppCompatActivity implements
                     mMapView.getMapAsync(new OnMapReadyCallback() {
                         @Override
                         public void onMapReady(GoogleMap googleMap) {
-                            googleMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+                            googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
                             googleMap.setIndoorEnabled(true);
                             googleMap.getUiSettings().setZoomControlsEnabled(true);
                         }
                     });
 
-                    // TODO: for test- remove later
-                    LatLng LOWER_MANHATTAN = new LatLng(40.722543, -73.998585);
-                    LatLng TIMES_SQUARE = new LatLng(40.7577, -73.9857);
-                    GoogleMap googleMap = mMapView.getMap();
-                    googleMap.addPolyline((new PolylineOptions())
-                            .add(TIMES_SQUARE, LOWER_MANHATTAN,
-                                    TIMES_SQUARE).width(5).color(Color.BLUE)
-                                    .geodesic(true));
-                    // move camera to zoom on map
-                    googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LOWER_MANHATTAN,
-                            13));
-
                     break;
 
                 case 2: // History tab
-                    /// TEST
-                    /// REMOVE when finished testing ///
-                    //NetwrokConnection nc = new NetwrokConnection(getContext());
-                    //String res = nc.login("behrang", "123");
+                    rootView = inflater.inflate(R.layout.atlas_history_page, container, false);
 
-
-                    rootView = inflater.inflate(R.layout.fragment_atlas_ii, container, false);
-                    textView = (TextView) rootView.findViewById(R.id.section_label);
-                    //textView.setText(getString(R.string.section_format, sectionNumber));
-                    textView.setText("test");
-
-                    /*AtlasDbHelper dbHandler = new AtlasDbHelper(this.getContext());
-                    Cursor crsr = dbHandler.getReadableDatabase().query("HTS_GeoData", null, null, null, null, null, null, null);
-                    crsr.moveToFirst();
-                    do {
-                        tmp = tmp + "\r\n" + crsr.getString(crsr.getColumnIndex("TimeStamp"));
-                    }while (crsr.moveToNext());*/
                     break;
 
                 case 3: // Profile tab
@@ -414,6 +407,7 @@ public class AtlasII extends AppCompatActivity implements
                     WebView webView = (WebView) rootView.findViewById(R.id.webView_helpPages);
                     webView.getSettings().setJavaScriptEnabled(true);
                     webView.loadUrl(helpURL);
+
                     break;
 
                 case 5: // Info tab
@@ -467,6 +461,62 @@ public class AtlasII extends AppCompatActivity implements
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(intent);
             getActivity().finish();
+        }
+
+        @Override
+        public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+            // Sort order:  Ascending, by date.
+            String sortOrder = AtlasContract.GeoEntry.COLUMN_TIMESTAMP + " ASC";
+            // TODO: Update to show the data only for the current trip
+            Uri geoUri = AtlasContract.GeoEntry.CONTENT_URI;
+
+            return new CursorLoader(getActivity(),
+                    geoUri,
+                    null,
+                    null,
+                    null,
+                    sortOrder);
+        }
+
+        @Override
+        public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+            // TODO: for test- update later
+            if(mMapView != null) {
+                if(data.moveToLast()) {
+                    LatLng point = new LatLng(
+                            data.getDouble(data.getColumnIndex(AtlasContract.GeoEntry.COLUMN_LATITUDE)),
+                            data.getDouble(data.getColumnIndex(AtlasContract.GeoEntry.COLUMN_LONGITUDE))
+                    );
+
+                    if(mLastLocation == null) {
+                        mLastLocation = point;
+                    }
+                    GoogleMap googleMap = mMapView.getMap();
+                    googleMap.addPolyline((new PolylineOptions())
+                        .add(mLastLocation, point)
+                            .width(7)
+                            .color(Color.BLUE)
+                            .geodesic(true));
+                    // move camera to zoom on map
+                    googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(point, 18));
+                    mLastLocation = point;
+                }
+            }
+
+            // For test only
+            /*ArrayList<String> temp = new ArrayList<String>(data.getCount());
+            data.moveToFirst();
+            while(data.moveToNext())
+            {
+                temp.add(data.getString(data.getColumnIndex(AtlasContract.GeoEntry.COLUMN_TIMESTAMP)));
+            }
+
+            String temp2 = "123";*/
+        }
+
+        @Override
+        public void onLoaderReset(Loader<Cursor> loader) {
+            // TODO: Complete this method
         }
     }
 

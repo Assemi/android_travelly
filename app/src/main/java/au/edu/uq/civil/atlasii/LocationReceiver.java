@@ -1,17 +1,17 @@
 package au.edu.uq.civil.atlasii;
 
 import android.content.BroadcastReceiver;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 
 import com.google.android.gms.location.LocationResult;
 
-import java.text.DateFormat;
+import java.util.Calendar;
 
 import au.edu.uq.civil.atlasii.data.AtlasContract;
-import au.edu.uq.civil.atlasii.data.AtlasDbHelper;
 
 /**
  * Created by Behrang Assemi on 16/02/2016.
@@ -25,29 +25,22 @@ public class LocationReceiver extends BroadcastReceiver {
             long geodataRowId;
 
             // Extracting location details
-            String timeStamp = DateFormat.getTimeInstance().format(location.getLastLocation().getTime());
+            String timeStamp = String.valueOf(Calendar.getInstance().getTimeInMillis());
             String latitude = String.valueOf(location.getLastLocation().getLatitude());
             String longitude = String.valueOf(location.getLastLocation().getLongitude());
 
-            // TODO: VERY IMPORTANT- Update the database persisting procedure- use providers, add other required details
+            // TODO: add other required details
             // Persisting the location details in the database
-            // Getting the database handler
-            AtlasDbHelper dbHandler = new AtlasDbHelper(context);
-            SQLiteDatabase db = dbHandler.getWritableDatabase();
-
-            // Inserting geo data into database
             // Create a new map of values, where column names are the keys
             ContentValues geodataValues = new ContentValues();
             geodataValues.put(AtlasContract.GeoEntry.COLUMN_TIMESTAMP, timeStamp);
             geodataValues.put(AtlasContract.GeoEntry.COLUMN_LATITUDE, latitude);
             geodataValues.put(AtlasContract.GeoEntry.COLUMN_LONGITUDE, longitude);
             // Insert the record into the database
-            db.beginTransaction();
-            geodataRowId = db.insert(AtlasContract.GeoEntry.TABLE_NAME, null, geodataValues);
-            db.setTransactionSuccessful();
-            db.endTransaction();
-
-            dbHandler.close();
+            Uri returnUri = context.getContentResolver().insert(
+                    AtlasContract.GeoEntry.CONTENT_URI,
+                    geodataValues);
+            long id = ContentUris.parseId(returnUri);
             /*// Register a content observer for our insert.  This time, directly with the content resolver
             TestUtilities.TestContentObserver tco = TestUtilities.getTestContentObserver();
             mContext.getContentResolver().registerContentObserver(LocationEntry.CONTENT_URI, true, tco);

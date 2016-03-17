@@ -12,7 +12,7 @@ import static au.edu.uq.civil.atlasii.data.AtlasContract.*;
  */
 public class AtlasDbHelper extends SQLiteOpenHelper {
     // If you change the database schema, you must increment the database version.
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 3;
 
     static final String DATABASE_NAME = "HTS.db";
 
