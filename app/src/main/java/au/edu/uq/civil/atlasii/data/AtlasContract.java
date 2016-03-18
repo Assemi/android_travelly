@@ -68,27 +68,49 @@ public class AtlasContract {
         public static final String COLUMN_TIMESTAMP = "timestamp";
         public static final String COLUMN_LATITUDE = "latitude";
         public static final String COLUMN_LONGITUDE = "longitude";
+        public static final String COLUMN_HEADING = "heading";
+        public static final String COLUMN_ACCURACY = "locationaccuracy";
+        public static final String COLUMN_SPEED = "speed";
+        // Column with the foreign key into the trip table.
+        public static final String COLUMN_TRIP_KEY = "trip_id";
     }
 
-    /* Inner class that defines the table contents of the weather table *//*
-    public static final class WeatherEntry implements BaseColumns {
+    /*
+     Inner class that defines the table contents of the trip table
+      */
+    public static final class TripEntry implements BaseColumns {
 
         public static final Uri CONTENT_URI =
-                BASE_CONTENT_URI.buildUpon().appendPath(PATH_WEATHER).build();
+                BASE_CONTENT_URI.buildUpon().appendPath(PATH_TRIP).build();
 
         public static final String CONTENT_TYPE =
-                ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_WEATHER;
+                ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_TRIP;
         public static final String CONTENT_ITEM_TYPE =
-                ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_WEATHER;
+                ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_TRIP;
 
 
         public static Uri buildWeatherUri(long id) {
             return ContentUris.withAppendedId(CONTENT_URI, id);
         }
 
-        *//*
-            Student: Fill in this buildWeatherLocation function
-         *//*
+        // Defining table name
+        public static final String TABLE_NAME = "trip";
+
+        // Defining table columns
+        public static final String COLUMN_DATE = "date";
+        public static final String COLUMN_DISTANCE = "distance";
+        public static final String COLUMN_START_TIME = "startTime";
+        public static final String COLUMN_END_TIME = "endTime";
+        public static final String COLUMN_EXPORTED = "isExported";
+        public static final String COLUMN_TRIP_ATTRIBUTES = "tripAttrs";
+        public static final String COLUMN_MIN_LATITUDE = "minLatitude";
+        public static final String COLUMN_MAX_LATITUDE = "maxLatitude";
+        public static final String COLUMN_MIN_LONGITUDE = "minLongitude";
+        public static final String COLUMN_MAX_LONGITUDE = "maxLongitude";
+
+        // TODO: Complete the rest of the class
+        // TODO: Table joins should be defined
+        /*
         public static Uri buildWeatherLocation(String locationSetting) {
             return CONTENT_URI.buildUpon().appendPath(locationSetting).build();
         }
@@ -120,34 +142,6 @@ public class AtlasContract {
             else
                 return 0;
         }
-
-        public static final String TABLE_NAME = "weather";
-
-        // Column with the foreign key into the location table.
-        public static final String COLUMN_LOC_KEY = "location_id";
-        // Date, stored as long in milliseconds since the epoch
-        public static final String COLUMN_DATE = "date";
-        // Weather id as returned by API, to identify the icon to be used
-        public static final String COLUMN_WEATHER_ID = "weather_id";
-
-        // Short description and long description of the weather, as provided by API.
-        // e.g "clear" vs "sky is clear".
-        public static final String COLUMN_SHORT_DESC = "short_desc";
-
-        // Min and max temperatures for the day (stored as floats)
-        public static final String COLUMN_MIN_TEMP = "min";
-        public static final String COLUMN_MAX_TEMP = "max";
-
-        // Humidity is stored as a float representing percentage
-        public static final String COLUMN_HUMIDITY = "humidity";
-
-        // Humidity is stored as a float representing percentage
-        public static final String COLUMN_PRESSURE = "pressure";
-
-        // Windspeed is stored as a float representing windspeed  mph
-        public static final String COLUMN_WIND_SPEED = "wind";
-
-        // Degrees are meteorological degrees (e.g, 0 is north, 180 is south).  Stored as floats.
-        public static final String COLUMN_DEGREES = "degrees";
-    }*/
+        */
+    }
 }

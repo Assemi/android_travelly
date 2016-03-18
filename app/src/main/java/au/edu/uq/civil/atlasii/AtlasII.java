@@ -24,7 +24,6 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -79,25 +78,11 @@ public class AtlasII extends AppCompatActivity implements
      */
     private GoogleApiClient mGoogleApiClient = null;
 
-    // Last known location
-    Location mLastLocation = null;
-
     // Location request
     LocationRequest mLocationRequest = null;
 
-    // Location request parameters
-    private static final long INTERVAL = 2000; // 2 seconds
-    private static final long FASTEST_INTERVAL = 1000; // 1 seconds
-
-    // Location update time
-    String mLastUpdateTime = null;
-
     // Fragment manager
     FragmentManager mFragmentManager;
-
-    // TODO: Update the database management procedure
-    // Database
-    // AtlasDbHelper mDBHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -162,9 +147,20 @@ public class AtlasII extends AppCompatActivity implements
     // Creating location request by specifying the request parameters
     protected void createLocationRequest() {
         mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(INTERVAL);
-        mLocationRequest.setFastestInterval(FASTEST_INTERVAL);
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        // Setting location request parameters
+        long LOCATION_INTERVAL = 2000; // 2 seconds
+        long LOCATION_FASTEST_INTERVAL = 1000; // 1 seconds
+        int LOCATION_ACCURACY = LocationRequest.PRIORITY_HIGH_ACCURACY;
+        SharedPreferences settings = getSharedPreferences(getApplicationContext().getString(R.string.shared_preferences), 0);
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putLong("Location_Interval", LOCATION_INTERVAL);
+        editor.putLong("Location_Fastest_Interval", LOCATION_FASTEST_INTERVAL);
+        editor.putInt("Location_Accuracy", LOCATION_ACCURACY);
+        mLocationRequest.setInterval(LOCATION_INTERVAL);
+        mLocationRequest.setFastestInterval(LOCATION_FASTEST_INTERVAL);
+        mLocationRequest.setPriority(LOCATION_ACCURACY);
+        editor.putBoolean("Location_Recording", false);
+        editor.putLong("Location_Current_Trip", 0);
     }
 
     @Override
@@ -187,15 +183,15 @@ public class AtlasII extends AppCompatActivity implements
 
     @Override
     public void onConnected(Bundle connectionHint) {
-        /// TEST
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ) {
+        // TODO: Delete, if not used anymore
+        /*if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ) {
             mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
             if (mLastLocation != null) {
                 TextView textView = (TextView) this.findViewById(R.id.section_label);
                 textView.setText("Latitude = " + String.valueOf(mLastLocation.getLatitude()) +
                         " Longitude = " + String.valueOf(mLastLocation.getLongitude()));
             }
-        }
+        }*/
 
         // TODO: Update this section- remove if not used anymore
         // Checking the current state of the location settings
@@ -251,18 +247,6 @@ public class AtlasII extends AppCompatActivity implements
         updateLog();
     }*/
 
-    private void updateLog() {
-        String locLog = mLastUpdateTime + " Lat: " + String.valueOf(mLastLocation.getLatitude()) +
-                " Long: " + String.valueOf(mLastLocation.getLongitude());
-        Log.d("Location", locLog);
-        /*try {
-            logFile.write(locLog.getBytes());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }*/
-    }
-
-
     /**
      * A placeholder fragment containing a simple view.
      */
@@ -274,14 +258,14 @@ public class AtlasII extends AppCompatActivity implements
          */
         private static final String ARG_SECTION_NUMBER = "section_number";
 
+        // Last location
+        Location mLastLocation = null;
+
         // Google Map on Today tab
         MapView mMapView = null;
 
         // Loader ID
         private static final int GEO_LOADER = 0;
-
-        // Last location
-        LatLng mLastLocation = null;
 
         public PlaceholderFragment() {
         }
@@ -480,38 +464,40 @@ public class AtlasII extends AppCompatActivity implements
 
         @Override
         public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-            // TODO: for test- update later
-            if(mMapView != null) {
-                if(data.moveToLast()) {
-                    LatLng point = new LatLng(
-                            data.getDouble(data.getColumnIndex(AtlasContract.GeoEntry.COLUMN_LATITUDE)),
-                            data.getDouble(data.getColumnIndex(AtlasContract.GeoEntry.COLUMN_LONGITUDE))
-                    );
+            // TODO: VERY IMPORTANT - Update this section - Use projection
+            // Getting the last recorded location
+            if(data.moveToLast()) {
+                // Check the updated location to see whether it is newer than the last location or not
+                long currentTimestamp = data.getLong(data.getColumnIndex(AtlasContract.GeoEntry.COLUMN_TIMESTAMP));
+                LatLng point = new LatLng(
+                        data.getDouble(data.getColumnIndex(AtlasContract.GeoEntry.COLUMN_LATITUDE)),
+                        data.getDouble(data.getColumnIndex(AtlasContract.GeoEntry.COLUMN_LONGITUDE))
+                );
 
-                    if(mLastLocation == null) {
-                        mLastLocation = point;
+                if (mLastLocation != null)
+                    if (mLastLocation.getTime() < currentTimestamp) {
+                        // Updating the today's map
+                        if (mMapView != null) {
+                            // Extracting the last location's coordinates
+                            LatLng lastLatLng = new LatLng(
+                                    mLastLocation.getLatitude(),
+                                    mLastLocation.getLongitude());
+                            GoogleMap googleMap = mMapView.getMap();
+                            googleMap.addPolyline((new PolylineOptions())
+                                    .add(lastLatLng, point)
+                                    .width(7)
+                                    .color(Color.BLUE)
+                                    .geodesic(true));
+                            // move camera to zoom on map
+                            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(point, 18));
+                        }
                     }
-                    GoogleMap googleMap = mMapView.getMap();
-                    googleMap.addPolyline((new PolylineOptions())
-                        .add(mLastLocation, point)
-                            .width(7)
-                            .color(Color.BLUE)
-                            .geodesic(true));
-                    // move camera to zoom on map
-                    googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(point, 18));
-                    mLastLocation = point;
-                }
-            }
 
-            // For test only
-            /*ArrayList<String> temp = new ArrayList<String>(data.getCount());
-            data.moveToFirst();
-            while(data.moveToNext())
-            {
-                temp.add(data.getString(data.getColumnIndex(AtlasContract.GeoEntry.COLUMN_TIMESTAMP)));
+                // TODO: Set the rest of the attributes
+                mLastLocation = new Location("dummyprovider");
+                mLastLocation.setLatitude(point.latitude);
+                mLastLocation.setLongitude(point.longitude);
             }
-
-            String temp2 = "123";*/
         }
 
         @Override

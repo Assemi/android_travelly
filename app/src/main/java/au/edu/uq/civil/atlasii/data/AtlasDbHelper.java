@@ -12,7 +12,7 @@ import static au.edu.uq.civil.atlasii.data.AtlasContract.*;
  */
 public class AtlasDbHelper extends SQLiteOpenHelper {
     // If you change the database schema, you must increment the database version.
-    private static final int DATABASE_VERSION = 3;
+    private static final int DATABASE_VERSION = 5;
 
     static final String DATABASE_NAME = "HTS.db";
 
@@ -27,9 +27,13 @@ public class AtlasDbHelper extends SQLiteOpenHelper {
         final String SQL_CREATE_GEODATA_TABLE = "CREATE TABLE " + GeoEntry.TABLE_NAME +
                 " (" +
                 GeoEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
-                GeoEntry.COLUMN_TIMESTAMP + " TEXT NOT NULL, " +
+                GeoEntry.COLUMN_TIMESTAMP + " INTEGER NOT NULL, " +
                 GeoEntry.COLUMN_LATITUDE + " REAL NOT NULL, " +
-                GeoEntry.COLUMN_LONGITUDE + " REAL NOT NULL" +
+                GeoEntry.COLUMN_LONGITUDE + " REAL NOT NULL, " +
+                GeoEntry.COLUMN_HEADING + " REAL NOT NULL, " +
+                GeoEntry.COLUMN_ACCURACY + " REAL NOT NULL, " +
+                GeoEntry.COLUMN_SPEED + " REAL NOT NULL, " +
+                GeoEntry.COLUMN_TRIP_KEY + " INTEGER NOT NULL" +
                 ");";
                 /* Sample foreign key:
                 // Set up the location column as a foreign key to location table.
