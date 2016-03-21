@@ -44,6 +44,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.util.Calendar;
@@ -464,39 +465,73 @@ public class AtlasII extends AppCompatActivity implements
 
         @Override
         public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-            // TODO: VERY IMPORTANT - Update this section - Use projection
-            // Getting the last recorded location
+            // TODO: Complete this method
+            // Update today's map
             if(data.moveToLast()) {
-                // Check the updated location to see whether it is newer than the last location or not
+                // Extracting variables
                 long currentTimestamp = data.getLong(data.getColumnIndex(AtlasContract.GeoEntry.COLUMN_TIMESTAMP));
+                SharedPreferences settings = getActivity().getSharedPreferences(getContext().getString(R.string.shared_preferences), 0);
+                boolean isLiveTracking = settings.getBoolean("Location_Recording", false);
+
                 LatLng point = new LatLng(
                         data.getDouble(data.getColumnIndex(AtlasContract.GeoEntry.COLUMN_LATITUDE)),
                         data.getDouble(data.getColumnIndex(AtlasContract.GeoEntry.COLUMN_LONGITUDE))
                 );
 
-                if (mLastLocation != null)
+                // Check the updated location to see whether it is newer than the last location or not
+                if (mLastLocation != null) {
                     if (mLastLocation.getTime() < currentTimestamp) {
-                        // Updating the today's map
-                        if (mMapView != null) {
-                            // Extracting the last location's coordinates
-                            LatLng lastLatLng = new LatLng(
-                                    mLastLocation.getLatitude(),
-                                    mLastLocation.getLongitude());
-                            GoogleMap googleMap = mMapView.getMap();
-                            googleMap.addPolyline((new PolylineOptions())
-                                    .add(lastLatLng, point)
-                                    .width(7)
-                                    .color(Color.BLUE)
-                                    .geodesic(true));
-                            // move camera to zoom on map
-                            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(point, 18));
+                        // Checking whether the recording is in progress
+                        if (isLiveTracking) {
+                            // Updating the today's map
+                            if (mMapView != null) {
+                                // Extracting the last location's coordinates
+                                LatLng lastLatLng = new LatLng(
+                                        mLastLocation.getLatitude(),
+                                        mLastLocation.getLongitude());
+                                GoogleMap googleMap = mMapView.getMap();
+                                googleMap.addPolyline((new PolylineOptions())
+                                        .add(lastLatLng, point)
+                                        .width(7)
+                                        .color(Color.BLUE)
+                                        .geodesic(true));
+                                // move camera to zoom on map
+                                googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(point, 18));
+                            }
+
+                            // TODO: Update trip's distance and duration
+                            // mActiveTrip_Distance
+                            // mActiveTrip_Duration
+
+                            // Recording the last known location
+                            mLastLocation = new Location("dummyprovider");
+                            mLastLocation.setLatitude(point.latitude);
+                            mLastLocation.setLongitude(point.longitude);
+                            mLastLocation.setTime(currentTimestamp);
+                        }
+                        else { // A recording is not in progress
+                            mLastLocation = null;
                         }
                     }
+                }
+                else if(isLiveTracking) { // mLastLocation == null
+                    // Recording the last known location
+                    mLastLocation = new Location("dummyprovider");
+                    mLastLocation.setLatitude(point.latitude);
+                    mLastLocation.setLongitude(point.longitude);
+                    mLastLocation.setTime(currentTimestamp);
 
-                // TODO: Set the rest of the attributes
-                mLastLocation = new Location("dummyprovider");
-                mLastLocation.setLatitude(point.latitude);
-                mLastLocation.setLongitude(point.longitude);
+                    // This is the origin: Add a marker to the map
+                    if (mMapView != null) {
+                        GoogleMap googleMap = mMapView.getMap();
+                        googleMap.addMarker(new MarkerOptions()
+                                .position(point)
+                                .title("Origin"));
+
+                        // move camera to zoom on map
+                        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(point, 18));
+                    }
+                }
             }
         }
 

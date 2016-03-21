@@ -23,11 +23,11 @@ public class AtlasProvider extends ContentProvider {
     static final int GEODATA_WITH_TRIP = 101;
     static final int TRIP = 200;
 
-    // private static final SQLiteQueryBuilder sWeatherByLocationSettingQueryBuilder;
+    private static final SQLiteQueryBuilder sTripQueryBuilder;
     private static final SQLiteQueryBuilder sGeoDataQueryBuilder;
 
     static{
-        // sWeatherByLocationSettingQueryBuilder = new SQLiteQueryBuilder();
+        sTripQueryBuilder = new SQLiteQueryBuilder();
         sGeoDataQueryBuilder = new SQLiteQueryBuilder();
 
         //This is an inner join which looks like
@@ -39,6 +39,9 @@ public class AtlasProvider extends ContentProvider {
                         "." + WeatherContract.WeatherEntry.COLUMN_LOC_KEY +
                         " = " + WeatherContract.LocationEntry.TABLE_NAME +
                         "." + WeatherContract.LocationEntry._ID);*/
+
+        sTripQueryBuilder.setTables(
+                AtlasContract.TripEntry.TABLE_NAME);
 
         sGeoDataQueryBuilder.setTables(
                 AtlasContract.GeoEntry.TABLE_NAME);
@@ -101,6 +104,19 @@ public class AtlasProvider extends ContentProvider {
         );
     }*/
 
+    private Cursor getTripData(
+            Uri uri, String[] projection, String selection, String[] selectionArgs,
+            String sortOrder) {
+        return sTripQueryBuilder.query(mOpenHelper.getReadableDatabase(),
+                projection,
+                selection,
+                selectionArgs,
+                null,
+                null,
+                sortOrder
+        );
+    }
+
     private Cursor getGeoData(
             Uri uri, String[] projection, String selection, String[] selectionArgs,
             String sortOrder) {
@@ -153,8 +169,8 @@ public class AtlasProvider extends ContentProvider {
                 return AtlasContract.GeoEntry.CONTENT_TYPE;
             case GEODATA:
                 return AtlasContract.GeoEntry.CONTENT_TYPE;
-            /*case TRIP:
-                return WeatherContract.LocationEntry.CONTENT_TYPE;*/
+            case TRIP:
+                return AtlasContract.TripEntry.CONTENT_TYPE;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
@@ -181,8 +197,7 @@ public class AtlasProvider extends ContentProvider {
             }
             // "trip"
             case TRIP: {
-                //TODO: Update- Implement the method
-                retCursor = getGeoData(uri, projection, selection, selectionArgs, sortOrder);
+                retCursor = getTripData(uri, projection, selection, selectionArgs, sortOrder);
                 break;
             }
 
@@ -210,14 +225,14 @@ public class AtlasProvider extends ContentProvider {
                     throw new android.database.SQLException("Failed to insert row into " + uri);
                 break;
             }
-            /*case TRIP: {
-                long _id = db.insert(WeatherContract.LocationEntry.TABLE_NAME, null, values);
+            case TRIP: {
+                long _id = db.insert(AtlasContract.TripEntry.TABLE_NAME, null, values);
                 if ( _id > 0 )
-                    returnUri = WeatherContract.LocationEntry.buildLocationUri(_id);
+                    returnUri = AtlasContract.TripEntry.buildTripUri(_id);
                 else
                     throw new android.database.SQLException("Failed to insert row into " + uri);
                 break;
-            }*/
+            }
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }

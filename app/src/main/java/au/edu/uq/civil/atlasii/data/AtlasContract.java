@@ -89,7 +89,7 @@ public class AtlasContract {
                 ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_TRIP;
 
 
-        public static Uri buildWeatherUri(long id) {
+        public static Uri buildTripUri(long id) {
             return ContentUris.withAppendedId(CONTENT_URI, id);
         }
 
@@ -102,11 +102,12 @@ public class AtlasContract {
         public static final String COLUMN_START_TIME = "startTime";
         public static final String COLUMN_END_TIME = "endTime";
         public static final String COLUMN_EXPORTED = "isExported";
+        public static final String COLUMN_ACTIVE = "isActive";
         public static final String COLUMN_TRIP_ATTRIBUTES = "tripAttrs";
-        public static final String COLUMN_MIN_LATITUDE = "minLatitude";
+        /*public static final String COLUMN_MIN_LATITUDE = "minLatitude";
         public static final String COLUMN_MAX_LATITUDE = "maxLatitude";
         public static final String COLUMN_MIN_LONGITUDE = "minLongitude";
-        public static final String COLUMN_MAX_LONGITUDE = "maxLongitude";
+        public static final String COLUMN_MAX_LONGITUDE = "maxLongitude";*/
 
         // TODO: Complete the rest of the class
         // TODO: Table joins should be defined

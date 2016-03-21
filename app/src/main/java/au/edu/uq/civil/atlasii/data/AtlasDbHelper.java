@@ -12,7 +12,7 @@ import static au.edu.uq.civil.atlasii.data.AtlasContract.*;
  */
 public class AtlasDbHelper extends SQLiteOpenHelper {
     // If you change the database schema, you must increment the database version.
-    private static final int DATABASE_VERSION = 5;
+    private static final int DATABASE_VERSION = 6;
 
     static final String DATABASE_NAME = "HTS.db";
 
@@ -22,8 +22,8 @@ public class AtlasDbHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
-        // Create a table to hold geo data. A geo data entry consists of the string supplied in the
-        // timestamp, latitude and longitude
+        // TODO: Add the foreign key to GeoData table
+        // Create a table to hold geo data.
         final String SQL_CREATE_GEODATA_TABLE = "CREATE TABLE " + GeoEntry.TABLE_NAME +
                 " (" +
                 GeoEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
@@ -45,7 +45,19 @@ public class AtlasDbHelper extends SQLiteOpenHelper {
                 " UNIQUE (" + WeatherEntry.COLUMN_DATE + ", " +
                 WeatherEntry.COLUMN_LOC_KEY + ") ON CONFLICT REPLACE);";*/
 
+        // TODO: Add the rest of the fields
+        // Create a table to hold trip data.
+        final String SQL_CREATE_TRIP_TABLE = "CREATE TABLE " + TripEntry.TABLE_NAME +
+                " (" +
+                TripEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
+                TripEntry.COLUMN_ACTIVE + " INTEGER NOT NULL, " +
+                TripEntry.COLUMN_EXPORTED + " INTEGER NOT NULL, " +
+                TripEntry.COLUMN_DATE + " INTEGER NOT NULL, " +
+                TripEntry.COLUMN_START_TIME + " INTEGER NOT NULL" +
+                ");";
+
         sqLiteDatabase.execSQL(SQL_CREATE_GEODATA_TABLE);
+        sqLiteDatabase.execSQL(SQL_CREATE_TRIP_TABLE);
     }
 
     @Override
