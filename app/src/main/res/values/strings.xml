@@ -5,6 +5,10 @@
     <string name="title_activity_login">Sign in</string>
     <string name="shared_preferences">Atlas_Prefs</string>
 
+    <!-- Strings related to intent messages -->
+    <string name="intent_msg_trips_date">Trips_Date</string>
+    <string name="intent_msg_trip_id">Trip_ID</string>
+
     <!-- Strings related to network addresses -->
     <string name="atlas_server_url">atlaservt.somee.com</string>
     <string name="path_signin">Login.aspx</string>
@@ -21,6 +25,8 @@
     <string name="error_field_required">This field is required</string>
     <string name="title_activity_survey_list">Select a Survey</string>
     <string name="title_activity_test">Test Activity</string>
+    <string name="title_activity_trips">Trips</string>
+    <string name="title_activity_trip_view">Trip</string>
     <!--string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
     </string-->

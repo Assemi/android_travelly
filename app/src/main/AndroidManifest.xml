@@ -61,9 +61,27 @@
 
         <!-- Providers -->
         <provider
-            android:authorities="au.edu.uq.civil.atlasii"
-            android:name=".data.AtlasProvider" />
+            android:name=".data.AtlasProvider"
+            android:authorities="au.edu.uq.civil.atlasii" />
 
+        <activity
+            android:name=".TripsActivity"
+            android:label="@string/title_activity_trips"
+            android:parentActivityName=".AtlasII"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="au.edu.uq.civil.atlasii.AtlasII" />
+        </activity>
+        <activity
+            android:name=".TripViewActivity"
+            android:label="@string/title_activity_trip_view"
+            android:parentActivityName=".TripsActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="au.edu.uq.civil.atlasii.TripsActivity" />
+        </activity>
     </application>
 
 </manifest>

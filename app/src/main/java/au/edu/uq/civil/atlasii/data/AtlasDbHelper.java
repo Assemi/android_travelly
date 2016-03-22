@@ -12,7 +12,7 @@ import static au.edu.uq.civil.atlasii.data.AtlasContract.*;
  */
 public class AtlasDbHelper extends SQLiteOpenHelper {
     // If you change the database schema, you must increment the database version.
-    private static final int DATABASE_VERSION = 6;
+    private static final int DATABASE_VERSION = 9;
 
     static final String DATABASE_NAME = "HTS.db";
 
@@ -49,10 +49,11 @@ public class AtlasDbHelper extends SQLiteOpenHelper {
         // Create a table to hold trip data.
         final String SQL_CREATE_TRIP_TABLE = "CREATE TABLE " + TripEntry.TABLE_NAME +
                 " (" +
-                TripEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
+                TripEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 TripEntry.COLUMN_ACTIVE + " INTEGER NOT NULL, " +
                 TripEntry.COLUMN_EXPORTED + " INTEGER NOT NULL, " +
-                TripEntry.COLUMN_DATE + " INTEGER NOT NULL, " +
+                TripEntry.COLUMN_LABELLED + " INTEGER NOT NULL, " +
+                TripEntry.COLUMN_DATE + " TEXT NOT NULL, " +
                 TripEntry.COLUMN_START_TIME + " INTEGER NOT NULL" +
                 ");";
 
@@ -62,14 +63,12 @@ public class AtlasDbHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
-        // TODO: Update the database upgrade process
         // This database is only a cache, so its upgrade policy is to simply discard the data and
         // start over.
-        // Note that this only fires if you change the version number for your database.
-        // It does NOT depend on the version number for your application.
-        // If you want to update the schema without wiping data, commenting out the next 2 lines
-        // should be your top priority before modifying this method.
+        // Note that this only fires if you change the version number of the database.
+        // It does NOT depend on the version number of the application.
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + GeoEntry.TABLE_NAME);
+        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TripEntry.TABLE_NAME);
         onCreate(sqLiteDatabase);
     }
 }

@@ -1,7 +1,9 @@
 package au.edu.uq.civil.atlasii;
 
 import android.Manifest;
+import android.annotation.TargetApi;
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -9,6 +11,7 @@ import android.database.Cursor;
 import android.graphics.Color;
 import android.location.Location;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -28,7 +31,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
+import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.CursorAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -313,12 +319,13 @@ public class AtlasII extends AppCompatActivity implements
             super.onActivityCreated(savedInstanceState);
         }
 
+        @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
             int sectionNumber = getArguments().getInt(ARG_SECTION_NUMBER);
             View rootView = null;
-            TextView textView;
+            final TextView textView;
 
             switch (sectionNumber) {
                 case 1: // Today tab
@@ -342,6 +349,72 @@ public class AtlasII extends AppCompatActivity implements
 
                 case 2: // History tab
                     rootView = inflater.inflate(R.layout.atlas_history_page, container, false);
+                    ListView listViewLabelledTrips = (ListView) rootView.findViewById(R.id.listView_LabelledTrips);
+                    final ListView listViewUnlabelledTrips = (ListView) rootView.findViewById(R.id.listView_UnlabelledTrips);
+
+                    // TODO: Add comments and differentiate labelled versus unlabelled trips as well as exported trips
+                    // Extracting unlabelled trips
+                    Cursor cursor = getContext().getContentResolver().query(
+                            AtlasContract.TripEntry.CONTENT_URI,
+                            new String[]{AtlasContract.TripEntry._ID,
+                                    "count(" + AtlasContract.TripEntry.COLUMN_DATE + ")",
+                                    AtlasContract.TripEntry.COLUMN_DATE},
+                            AtlasContract.TripEntry.COLUMN_LABELLED + " = ?",
+                            new String[]{"0"},
+                            AtlasContract.TripEntry.COLUMN_DATE + " ASC");
+                    CursorAdapter cursorAdapter = new CursorAdapter(
+                            getContext(),
+                            cursor,
+                            0) {
+                        @Override
+                        public View newView(Context context, Cursor cursor, ViewGroup parent) {
+                            return LayoutInflater.from(context).inflate(
+                                    R.layout.listitem_trip, parent, false);
+                        }
+
+                        @Override
+                        public void bindView(View view, Context context, Cursor cursor) {
+                            TextView textViewTrip = (TextView) view.findViewById(R.id.textview_trip);
+                            TextView textViewTripCount = (TextView) view.findViewById(R.id.textview_tripcount);
+                            // TODO: Update
+                            // Set the labelled trips' icon
+                            /*ImageView imageView = (ImageView) view.findViewById(R.id.icon_trip);
+                            imageView.setImageResource(R.drawable.ic_done);*/
+                            /*TimeZone timeZone = Calendar.getInstance().getTimeZone();
+                            SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+                            formatter.setTimeZone(timeZone);*/
+                            String strTripDate = cursor.getString(cursor.getColumnIndexOrThrow(
+                                    AtlasContract.TripEntry.COLUMN_DATE));
+                            int tripCount = cursor.getInt(
+                                    cursor.getColumnIndexOrThrow("count(" + AtlasContract.TripEntry.COLUMN_DATE + ")"));
+                            //String tripDate = formatter.format(new Date(Long.parseLong(strTripDate)));
+                            //textViewTrip.setText(tripDate);
+                            textViewTrip.setText(strTripDate);
+                            textViewTripCount.setText(tripCount + " trip(s)");
+
+                            // Specify click action for the listview items
+                            listViewUnlabelledTrips.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                                // Redirecting to trip details page
+                                @Override
+                                public void onItemClick(AdapterView<?> parent, View view, int position,
+                                                        long id) {
+                                    Intent intent = new Intent(getContext(), TripsActivity.class);
+                                    // Extract selected trips' date
+                                    String tripsDate = (String) ((TextView) view.
+                                            findViewById(R.id.textview_trip))
+                                            .getText();
+
+                                    intent.putExtra(getContext().getString(
+                                            R.string.intent_msg_trips_date),
+                                            tripsDate);
+                                    startActivity(intent);
+                                }
+                            });
+                        }
+                    };
+
+                    // Attach cursor adapter to the ListView
+                    listViewUnlabelledTrips.setAdapter(cursorAdapter);
 
                     break;
 
@@ -503,6 +576,7 @@ public class AtlasII extends AppCompatActivity implements
                             // mActiveTrip_Distance
                             // mActiveTrip_Duration
 
+                            // TODO: Ensure everything necessary is correctly recorded in the shared preferences
                             // Recording the last known location
                             mLastLocation = new Location("dummyprovider");
                             mLastLocation.setLatitude(point.latitude);

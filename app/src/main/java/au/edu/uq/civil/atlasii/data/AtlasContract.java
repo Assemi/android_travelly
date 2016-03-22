@@ -61,6 +61,14 @@ public class AtlasContract {
             return ContentUris.withAppendedId(CONTENT_URI, id);
         }
 
+        public static Uri buildGeoWithTripUri(long id) {
+            return CONTENT_URI.buildUpon().appendPath(String.valueOf(id)).build();
+        }
+
+        public static String getTripIDFromUri(Uri uri) {
+            return uri.getPathSegments().get(1);
+        }
+
         // Defining table name
         public static final String TABLE_NAME = "HTS_GeoData";
 
@@ -93,6 +101,18 @@ public class AtlasContract {
             return ContentUris.withAppendedId(CONTENT_URI, id);
         }
 
+        public static Uri buildTripWithDateUri(String date) {
+            return CONTENT_URI.buildUpon().appendPath(date).build();
+        }
+
+        public static String getDateFromUri(Uri uri) {
+            String date = uri.getPathSegments().get(1);
+            // Adding '/' between date parts
+            date = date.substring(0, 2) + "/" + date.substring(2, 4) + "/" + date.substring(4, 8);
+
+            return date;
+        }
+
         // Defining table name
         public static final String TABLE_NAME = "trip";
 
@@ -103,6 +123,7 @@ public class AtlasContract {
         public static final String COLUMN_END_TIME = "endTime";
         public static final String COLUMN_EXPORTED = "isExported";
         public static final String COLUMN_ACTIVE = "isActive";
+        public static final String COLUMN_LABELLED = "isLabelled";
         public static final String COLUMN_TRIP_ATTRIBUTES = "tripAttrs";
         /*public static final String COLUMN_MIN_LATITUDE = "minLatitude";
         public static final String COLUMN_MAX_LATITUDE = "maxLatitude";
@@ -126,10 +147,6 @@ public class AtlasContract {
         public static Uri buildWeatherLocationWithDate(String locationSetting, long date) {
             return CONTENT_URI.buildUpon().appendPath(locationSetting)
                     .appendPath(Long.toString(normalizeDate(date))).build();
-        }
-
-        public static String getLocationSettingFromUri(Uri uri) {
-            return uri.getPathSegments().get(1);
         }
 
         public static long getDateFromUri(Uri uri) {

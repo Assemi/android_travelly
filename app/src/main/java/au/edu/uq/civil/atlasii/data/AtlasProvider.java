@@ -22,6 +22,7 @@ public class AtlasProvider extends ContentProvider {
     static final int GEODATA = 100;
     static final int GEODATA_WITH_TRIP = 101;
     static final int TRIP = 200;
+    static final int TRIP_WITH_DATE = 201;
 
     private static final SQLiteQueryBuilder sTripQueryBuilder;
     private static final SQLiteQueryBuilder sGeoDataQueryBuilder;
@@ -111,6 +112,20 @@ public class AtlasProvider extends ContentProvider {
                 projection,
                 selection,
                 selectionArgs,
+                AtlasContract.TripEntry.COLUMN_DATE,
+                null,
+                sortOrder
+        );
+    }
+
+    private Cursor getTripDataForDate(
+            Uri uri, String[] projection, String sortOrder) {
+        String date = AtlasContract.TripEntry.getDateFromUri(uri);
+
+        return sTripQueryBuilder.query(mOpenHelper.getReadableDatabase(),
+                projection,
+                AtlasContract.TripEntry.COLUMN_DATE + " LIKE ?",
+                new String[]{date},
                 null,
                 null,
                 sortOrder
@@ -124,6 +139,20 @@ public class AtlasProvider extends ContentProvider {
                 projection,
                 selection,
                 selectionArgs,
+                null,
+                null,
+                sortOrder
+        );
+    }
+
+    private Cursor getGeoDataForTrip(
+            Uri uri, String[] projection, String sortOrder) {
+        String id = AtlasContract.GeoEntry.getTripIDFromUri(uri);
+
+        return sGeoDataQueryBuilder.query(mOpenHelper.getReadableDatabase(),
+                projection,
+                AtlasContract.GeoEntry.COLUMN_TRIP_KEY + " = ?",
+                new String[]{id},
                 null,
                 null,
                 sortOrder
@@ -145,6 +174,7 @@ public class AtlasProvider extends ContentProvider {
         matcher.addURI(authority, AtlasContract.PATH_GEODATA, GEODATA);
         matcher.addURI(authority, AtlasContract.PATH_GEODATA + "/#", GEODATA_WITH_TRIP);
         matcher.addURI(authority, AtlasContract.PATH_TRIP, TRIP);
+        matcher.addURI(authority, AtlasContract.PATH_TRIP + "/*", TRIP_WITH_DATE);
 
         return matcher;
     }
@@ -171,6 +201,8 @@ public class AtlasProvider extends ContentProvider {
                 return AtlasContract.GeoEntry.CONTENT_TYPE;
             case TRIP:
                 return AtlasContract.TripEntry.CONTENT_TYPE;
+            case TRIP_WITH_DATE:
+                return AtlasContract.TripEntry.CONTENT_TYPE;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
@@ -191,13 +223,17 @@ public class AtlasProvider extends ContentProvider {
             }
             // "geo/#"
             case GEODATA_WITH_TRIP: {
-                // TODO: Update- Implement the method
-                retCursor = getGeoData(uri, projection, selection, selectionArgs, sortOrder);
+                retCursor = getGeoDataForTrip(uri, projection, sortOrder);
                 break;
             }
             // "trip"
             case TRIP: {
                 retCursor = getTripData(uri, projection, selection, selectionArgs, sortOrder);
+                break;
+            }
+            // "trip/*"
+            case TRIP_WITH_DATE: {
+                retCursor = getTripDataForDate(uri, projection, sortOrder);
                 break;
             }
 

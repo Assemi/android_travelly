@@ -5,7 +5,7 @@
     android:orientation="horizontal" >
 
     <ImageView
-        android:id="@+id/icon_trip"
+        android:id="@+id/icon_tripdetail"
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:layout_marginBottom="5dp"
@@ -20,14 +20,14 @@
         android:orientation="vertical" >
 
         <TextView
-            android:id="@+id/textview_trip"
+            android:id="@+id/textview_tripdetail"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="20sp"
             android:paddingTop="5dp"/>
 
         <TextView
-            android:id="@+id/textview_tripcount"
+            android:id="@+id/textview_tripdetailtime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="12sp"

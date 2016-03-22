@@ -12,7 +12,10 @@ import android.net.Uri;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.maps.model.LatLng;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
 
 import au.edu.uq.civil.atlasii.data.AtlasContract;
 
@@ -42,7 +45,7 @@ public class LocationReceiver extends BroadcastReceiver {
 
         // Retrieving recorded variables
         SharedPreferences settings = context.getSharedPreferences(context.getString(R.string.shared_preferences), 0);
-        SharedPreferences.Editor editor = settings.edit();
+        SharedPreferences.Editor editor;
         double lastLat = Double.parseDouble(settings.getString("Location_Last_Lat", "0"));
         double lastLon = Double.parseDouble(settings.getString("Location_Last_Lon", "0"));
         long lastTimestamp = settings.getLong("Location_Last_Time", -1);
@@ -100,10 +103,10 @@ public class LocationReceiver extends BroadcastReceiver {
                                 mLastLocation.setLongitude(point.longitude);
                                 mLastLocation.setTime(currentTimestamp);
 
+                                editor = settings.edit();
                                 editor.putString("Location_Last_Lat", String.valueOf(mLastLocation.getLatitude()));
                                 editor.putString("Location_Last_Lon", String.valueOf(mLastLocation.getLongitude()));
                                 editor.putLong("Location_Last_Time", mLastLocation.getTime());
-                                editor.putLong("Trip_ID", mTripID);
                                 editor.commit();
                             }
                         }
@@ -115,6 +118,9 @@ public class LocationReceiver extends BroadcastReceiver {
                         if(distance >= 2) {
                             // If so, start recording a trip
                             mTripID = recordTrip(context, currentTimestamp, point);
+                            editor = settings.edit();
+                            editor.putLong("Trip_ID", mTripID);
+                            editor.commit();
                         }
                     }
                 }
@@ -125,10 +131,10 @@ public class LocationReceiver extends BroadcastReceiver {
                 mLastLocation.setLongitude(point.longitude);
                 mLastLocation.setTime(currentTimestamp);
 
+                editor = settings.edit();
                 editor.putString("Location_Last_Lat", String.valueOf(mLastLocation.getLatitude()));
                 editor.putString("Location_Last_Lon", String.valueOf(mLastLocation.getLongitude()));
                 editor.putLong("Location_Last_Time", mLastLocation.getTime());
-                editor.putLong("Trip_ID", mTripID);
                 editor.commit();
             }
         }
@@ -166,20 +172,27 @@ public class LocationReceiver extends BroadcastReceiver {
         editor.commit();
 
         // Create a new trip in the database
+        // Extract current date
+        TimeZone timeZone = Calendar.getInstance().getTimeZone();
+        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+        formatter.setTimeZone(timeZone);
+        String tripDate = formatter.format(new Date(
+                Calendar.getInstance().getTimeInMillis()));
+
         // Create a new map of values, where column names are the keys
         ContentValues tripValues = new ContentValues();
-        tripValues.put(AtlasContract.TripEntry.COLUMN_DATE, Calendar.getInstance().getTimeInMillis());
+        tripValues.put(AtlasContract.TripEntry.COLUMN_DATE, tripDate);
         tripValues.put(AtlasContract.TripEntry.COLUMN_START_TIME, currentTimestamp);
         tripValues.put(AtlasContract.TripEntry.COLUMN_EXPORTED, false);
         tripValues.put(AtlasContract.TripEntry.COLUMN_ACTIVE, false);
+        tripValues.put(AtlasContract.TripEntry.COLUMN_LABELLED, false);
 
         // Insert the record into the database
         Uri returnUri = context.getContentResolver().insert(
                 AtlasContract.TripEntry.CONTENT_URI,
                 tripValues);
 
-        long temp = ContentUris.parseId(returnUri);
-        return temp;
+        return ContentUris.parseId(returnUri);
     }
 
     private void updateMinMaxCoord(Context context, double currentLatitude, double currentLongitude) {
