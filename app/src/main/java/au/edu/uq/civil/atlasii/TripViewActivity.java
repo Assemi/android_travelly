@@ -10,7 +10,11 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.util.ArrayList;
@@ -79,28 +83,47 @@ public class TripViewActivity extends AppCompatActivity {
                 AtlasContract.GeoEntry.COLUMN_TIMESTAMP + " ASC");
 
         ArrayList<LatLng> points = new ArrayList<LatLng>();
-        //LatLngBounds.Builder builder = new LatLngBounds.Builder();
+        LatLngBounds.Builder builder = new LatLngBounds.Builder();
         while(cursor.moveToNext())
         {
             LatLng point = new LatLng(
                     cursor.getDouble(cursor.getColumnIndex(AtlasContract.GeoEntry.COLUMN_LATITUDE)),
                     cursor.getDouble(cursor.getColumnIndex(AtlasContract.GeoEntry.COLUMN_LONGITUDE)));
             points.add(point);
-            //builder.include(point);
+            builder.include(point);
         }
 
         if (mMapView != null) {
             // Drawing the trip's trajectory
-            GoogleMap googleMap = mMapView.getMap();
+            final GoogleMap googleMap = mMapView.getMap();
             googleMap.addPolyline((new PolylineOptions())
                     .addAll(points)
                     .width(7)
                     .color(Color.BLUE)
                     .geodesic(true));
 
-            // move camera to zoom on map
-            //LatLngBounds bounds = builder.build();
-            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(points.get(1), 18));
+            // Adding the trip start/end points
+            googleMap.addMarker(new MarkerOptions()
+                    .position(points.get(1))
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
+                    .title("Origin"));
+            googleMap.addMarker(new MarkerOptions()
+                    .position(points.get(points.size() - 1))
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
+                    .title("Destination"));
+
+            // Moving camera to zoom on map
+            final LatLngBounds bounds = builder.build();
+            googleMap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
+                @Override
+                public void onCameraChange(CameraPosition arg0) {
+                    // Move camera.
+                    googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 10));
+                    // Remove listener to prevent position reset on camera move.
+                    googleMap.setOnCameraChangeListener(null);
+                }
+            });
+            //googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(points.get(1), 18));
         }
 
     }

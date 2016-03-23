@@ -81,7 +81,7 @@ public class LocationReceiver extends BroadcastReceiver {
                     if (mIsLiveTracking) {
                         // TODO: Make sure this is the right place - THE TIME CANNOT BE COMPARED WITH LAST LOCATION
                         // Checking the idle time and the distance between the current and last known location
-                        if ((abs(Calendar.getInstance().getTimeInMillis() - mLastLocation.getTime()) >= 150000) &&
+                        if ((abs(Calendar.getInstance().getTimeInMillis() - mLastLocation.getTime()) >= 60000) &&
                                 (distance <= 100)){
                             // Stop recording the trip
                             stopRecordingTrip(context);
@@ -97,25 +97,27 @@ public class LocationReceiver extends BroadcastReceiver {
                                 // Update the minMax latitudes and longitudes
                                 updateMinMaxCoord(context, currentLatitude, currentLongitude);
 
-                                // Recording the last known location
-                                mLastLocation = new Location("dummyprovider");
-                                mLastLocation.setLatitude(point.latitude);
-                                mLastLocation.setLongitude(point.longitude);
-                                mLastLocation.setTime(currentTimestamp);
+                                // Recording the last known location, if there is a minimum distance
+                                // of 10m from the current last known location
+                                if(distance >= 10) {
+                                    mLastLocation = new Location("dummyprovider");
+                                    mLastLocation.setLatitude(point.latitude);
+                                    mLastLocation.setLongitude(point.longitude);
+                                    mLastLocation.setTime(currentTimestamp);
 
-                                editor = settings.edit();
-                                editor.putString("Location_Last_Lat", String.valueOf(mLastLocation.getLatitude()));
-                                editor.putString("Location_Last_Lon", String.valueOf(mLastLocation.getLongitude()));
-                                editor.putLong("Location_Last_Time", mLastLocation.getTime());
-                                editor.commit();
+                                    editor = settings.edit();
+                                    editor.putString("Location_Last_Lat", String.valueOf(mLastLocation.getLatitude()));
+                                    editor.putString("Location_Last_Lon", String.valueOf(mLastLocation.getLongitude()));
+                                    editor.putLong("Location_Last_Time", mLastLocation.getTime());
+                                    editor.commit();
+                                }
                             }
                         }
                     }
                     else { // A recording is not in progress
                         // Check the distance between the current and last known location to see
                         // whether it is more than 50m
-                        // TODO: For test only, change the threshold to 50m
-                        if(distance >= 2) {
+                        if(distance >= 50) {
                             // If so, start recording a trip
                             mTripID = recordTrip(context, currentTimestamp, point);
                             editor = settings.edit();
