@@ -12,9 +12,9 @@ import static au.edu.uq.civil.atlasii.data.AtlasContract.*;
  */
 public class AtlasDbHelper extends SQLiteOpenHelper {
     // If you change the database schema, you must increment the database version.
-    private static final int DATABASE_VERSION = 9;
+    private static final int DATABASE_VERSION = 10;
 
-    static final String DATABASE_NAME = "HTS.db";
+    static final String DATABASE_NAME = "HTS_ATLAS.db";
 
     public AtlasDbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -45,7 +45,6 @@ public class AtlasDbHelper extends SQLiteOpenHelper {
                 " UNIQUE (" + WeatherEntry.COLUMN_DATE + ", " +
                 WeatherEntry.COLUMN_LOC_KEY + ") ON CONFLICT REPLACE);";*/
 
-        // TODO: Add the rest of the fields
         // Create a table to hold trip data.
         final String SQL_CREATE_TRIP_TABLE = "CREATE TABLE " + TripEntry.TABLE_NAME +
                 " (" +
@@ -54,7 +53,14 @@ public class AtlasDbHelper extends SQLiteOpenHelper {
                 TripEntry.COLUMN_EXPORTED + " INTEGER NOT NULL, " +
                 TripEntry.COLUMN_LABELLED + " INTEGER NOT NULL, " +
                 TripEntry.COLUMN_DATE + " TEXT NOT NULL, " +
-                TripEntry.COLUMN_START_TIME + " INTEGER NOT NULL" +
+                TripEntry.COLUMN_START_TIME + " INTEGER NOT NULL, " +
+                TripEntry.COLUMN_END_TIME + " INTEGER, " +
+                TripEntry.COLUMN_DISTANCE + " INTEGER, " +
+                TripEntry.COLUMN_TRIP_ATTRIBUTES+ " TEXT, " +
+                TripEntry.COLUMN_MIN_LATITUDE + " REAL, " +
+                TripEntry.COLUMN_MAX_LATITUDE + " REAL, " +
+                TripEntry.COLUMN_MIN_LONGITUDE + " REAL, " +
+                TripEntry.COLUMN_MAX_LONGITUDE + " REAL" +
                 ");";
 
         sqLiteDatabase.execSQL(SQL_CREATE_GEODATA_TABLE);

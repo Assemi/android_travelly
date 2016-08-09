@@ -2,18 +2,26 @@ package au.edu.uq.civil.atlasii;
 
 import android.Manifest;
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.database.ContentObserver;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -22,11 +30,14 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,10 +45,12 @@ import android.webkit.WebView;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CursorAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
@@ -65,6 +78,10 @@ public class AtlasII extends AppCompatActivity implements
         ConnectionCallbacks,
         OnConnectionFailedListener {
 
+    // Permission constants
+    public static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 100;
+    public static final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 200;
+
     /**
      * The {@link PagerAdapter} that will provide
      * fragments for each of the sections. We use a
@@ -90,6 +107,13 @@ public class AtlasII extends AppCompatActivity implements
 
     // Fragment manager
     FragmentManager mFragmentManager;
+
+    // App Notifications
+    private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
+    private static final String TAG = "MainActivity";
+    private BroadcastReceiver mRegistrationBroadcastReceiver;
+    private TextView mInformationTextView;
+    private boolean isReceiverRegistered;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -142,9 +166,161 @@ public class AtlasII extends AppCompatActivity implements
             finish();
         }
 
-        // TODO: Update the database handling procedures, using providers
-        // Get the handler to the database
-        // mDBHandler = new AtlasDbHelper(this.getApplicationContext());
+        /*
+            Initiating app notification services
+         */
+        mRegistrationBroadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                SharedPreferences sharedPreferences =
+                        PreferenceManager.getDefaultSharedPreferences(context);
+                boolean sentToken = sharedPreferences
+                        .getBoolean("SENT_TOKEN_TO_SERVER", false);
+                if (sentToken) {
+
+                } else {
+
+                }
+            }
+        };
+
+        // Registering BroadcastReceiver
+        registerReceiver();
+
+        // Checking required permissions
+        checkPermissions();
+
+        if (checkPlayServices()) {
+            // Start IntentService to register this application with GCM.
+            Intent intent = new Intent(this, RegistrationIntentService.class);
+            startService(intent);
+        }
+    }
+
+    /**
+     *  Check permissions
+     */
+    private void checkPermissions() {
+        // Check storage permission
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
+
+            // The callback method gets the result of the request.
+        }
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED ) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+
+            // The callback method gets the result of the request.
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // permission was granted
+                } else {
+                    // permission denied! Disable the
+                    // functionality that depends on this permission.
+                    new AlertDialog.Builder(this)
+                            .setTitle("Permission required")
+                            .setMessage("Sorry, without the required permission, the app cannot work properly!")
+                            .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                }
+                            })
+                            .setIcon(android.R.drawable.ic_dialog_alert)
+                            .show();
+                }
+                return;
+            }
+
+            case MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // permission was granted
+                } else {
+                    // permission denied! Disable the
+                    // functionality that depends on this permission.
+                    new AlertDialog.Builder(this)
+                            .setTitle("Permission required")
+                            .setMessage("Sorry, without the required permission, the app cannot work properly!")
+                            .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                }
+                            })
+                            /*.setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    // do nothing
+                                }
+                            })*/
+                            .setIcon(android.R.drawable.ic_dialog_alert)
+                            .show();
+                }
+                return;
+            }
+
+            default:
+                break;
+        }
+    }
+
+
+    /**
+     *  Notifications
+     */
+    @Override
+    protected void onResume() {
+        super.onResume();
+        registerReceiver();
+    }
+
+    @Override
+    protected void onPause() {
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mRegistrationBroadcastReceiver);
+        isReceiverRegistered = false;
+        super.onPause();
+    }
+
+    private void registerReceiver(){
+        if(!isReceiverRegistered) {
+            LocalBroadcastManager.getInstance(this).registerReceiver(mRegistrationBroadcastReceiver,
+                    new IntentFilter("REGISTRATION_COMPLETE"));
+            isReceiverRegistered = true;
+        }
+    }
+    /**
+     * Check the device to make sure it has the Google Play Services APK. If
+     * it doesn't, display a dialog that allows users to download the APK from
+     * the Google Play Store or enable it in the device's system settings.
+     */
+    private boolean checkPlayServices() {
+        GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
+        int resultCode = apiAvailability.isGooglePlayServicesAvailable(this);
+        if (resultCode != ConnectionResult.SUCCESS) {
+            if (apiAvailability.isUserResolvableError(resultCode)) {
+                apiAvailability.getErrorDialog(this, resultCode, PLAY_SERVICES_RESOLUTION_REQUEST)
+                        .show();
+            } else {
+                Log.i(TAG, "This device is not supported.");
+                finish();
+            }
+            return false;
+        }
+        return true;
     }
 
 
@@ -155,8 +331,8 @@ public class AtlasII extends AppCompatActivity implements
     protected void createLocationRequest() {
         mLocationRequest = new LocationRequest();
         // Setting location request parameters
-        long LOCATION_INTERVAL = 2000; // 2 seconds
-        long LOCATION_FASTEST_INTERVAL = 1000; // 1 seconds
+        long LOCATION_INTERVAL = 10000; // 10 seconds
+        long LOCATION_FASTEST_INTERVAL = 2000; // 2 seconds
         int LOCATION_ACCURACY = LocationRequest.PRIORITY_HIGH_ACCURACY;
         SharedPreferences settings = getSharedPreferences(getApplicationContext().getString(R.string.shared_preferences), 0);
         SharedPreferences.Editor editor = settings.edit();
@@ -186,6 +362,11 @@ public class AtlasII extends AppCompatActivity implements
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
         mGoogleApiClient.disconnect();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
     }
 
     @Override
@@ -260,6 +441,101 @@ public class AtlasII extends AppCompatActivity implements
     public static class PlaceholderFragment extends Fragment implements
             LoaderManager.LoaderCallbacks<Cursor> {
         /**
+         * ContentObserver class for Trip changes
+         */
+        public class TripObserver extends ContentObserver {
+            Context context;
+
+            public TripObserver(Handler handler, Context context) {
+                super(handler);
+                this.context = context;
+            }
+
+            @Override
+            public void onChange(boolean selfChange, Uri uri) {
+                super.onChange(selfChange, uri);
+                updateHistory();
+            }
+        }
+
+        public void updateHistory() {
+            final Bundle extras = new Bundle();
+            final Activity atlasActivity = getActivity();
+            if(atlasActivity != null) {
+                final ListView listViewToUploadTrips = (ListView) atlasActivity.findViewById(R.id.listView_ToUploadTrips);
+
+                if (listViewToUploadTrips != null) {
+                    // Extracting trips to upload
+                    Cursor cursorToUploadTrips = getContext().getContentResolver().query(
+                            AtlasContract.TripEntry.CONTENT_URI,
+                            new String[]{AtlasContract.TripEntry._ID,
+                                    "count(" + AtlasContract.TripEntry.COLUMN_DATE + ")",
+                                    AtlasContract.TripEntry.COLUMN_DATE},
+                            AtlasContract.TripEntry.COLUMN_ACTIVE + " = ? and " +
+                                    AtlasContract.TripEntry.COLUMN_EXPORTED + " = ?",
+                            new String[]{"0", "0"},
+                            AtlasContract.TripEntry.COLUMN_DATE + " ASC");
+                    CursorAdapter cursorAdapter = new CursorAdapter(
+                            getContext(),
+                            cursorToUploadTrips,
+                            0) {
+                        @Override
+                        public View newView(Context context, Cursor cursor, ViewGroup parent) {
+                            return LayoutInflater.from(context).inflate(
+                                    R.layout.listitem_trip, parent, false);
+                        }
+
+                        @Override
+                        public void bindView(View view, Context context, Cursor cursor) {
+                            TextView textViewTrip = (TextView) view.findViewById(R.id.textview_trip);
+                            TextView textViewTripCount = (TextView) view.findViewById(R.id.textview_tripcount);
+
+                            // Set the labelled trips' icon
+                            ImageView imageView = (ImageView) view.findViewById(R.id.icon_trip);
+                            imageView.setImageResource(R.drawable.ic_to_upload);
+                                    /*TimeZone timeZone = Calendar.getInstance().getTimeZone();
+                                    SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+                                    formatter.setTimeZone(timeZone);*/
+                            String strTripDate = cursor.getString(cursor.getColumnIndexOrThrow(
+                                    AtlasContract.TripEntry.COLUMN_DATE));
+                            int tripCount = cursor.getInt(
+                                    cursor.getColumnIndexOrThrow("count(" + AtlasContract.TripEntry.COLUMN_DATE + ")"));
+                            //String tripDate = formatter.format(new Date(Long.parseLong(strTripDate)));
+                            //textViewTrip.setText(tripDate);
+                            textViewTrip.setText(strTripDate);
+                            textViewTripCount.setText(tripCount + " trip(s)");
+
+                            // Specify click action for the listview items
+                            listViewToUploadTrips.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                                // Redirecting to trip details page
+                                @Override
+                                public void onItemClick(AdapterView<?> parent, View view, int position,
+                                                        long id) {
+                                    Intent intent = new Intent(getContext(), TripsActivity.class);
+                                    // Extract selected trips' date
+                                    String tripsDate = (String) ((TextView) view.
+                                            findViewById(R.id.textview_trip))
+                                            .getText();
+                                    extras.putBoolean(getContext().getString(
+                                            R.string.intent_msg_trips_exported),
+                                            false);
+                                    extras.putString(getContext().getString(
+                                            R.string.intent_msg_trips_date),
+                                            tripsDate);
+                                    intent.putExtras(extras);
+                                    startActivity(intent);
+                                }
+                            });
+                        }
+                    };
+
+                    // Attach cursor adapter to the ListView
+                    listViewToUploadTrips.setAdapter(cursorAdapter);
+                }
+            }
+        }
+
+        /**
          * The fragment argument representing the section number for this
          * fragment.
          */
@@ -314,6 +590,11 @@ public class AtlasII extends AppCompatActivity implements
         }
 
         @Override
+        public void onActivityResult(int requestCode, int resultCode, Intent data) {
+            super.onActivityResult(requestCode, resultCode, data);
+        }
+
+        @Override
         public void onActivityCreated(Bundle savedInstanceState) {
             getLoaderManager().initLoader(GEO_LOADER, null, this);
             super.onActivityCreated(savedInstanceState);
@@ -348,23 +629,31 @@ public class AtlasII extends AppCompatActivity implements
                     break;
 
                 case 2: // History tab
+                    final Bundle extras = new Bundle();
                     rootView = inflater.inflate(R.layout.atlas_history_page, container, false);
-                    ListView listViewLabelledTrips = (ListView) rootView.findViewById(R.id.listView_LabelledTrips);
-                    final ListView listViewUnlabelledTrips = (ListView) rootView.findViewById(R.id.listView_UnlabelledTrips);
+                    //final ListView listViewUploadedTrips = (ListView) rootView.findViewById(R.id.listView_UploadedTrips);
+                    final ListView listViewToUploadTrips = (ListView) rootView.findViewById(R.id.listView_ToUploadTrips);
 
-                    // TODO: Add comments and differentiate labelled versus unlabelled trips as well as exported trips
-                    // Extracting unlabelled trips
-                    Cursor cursor = getContext().getContentResolver().query(
+                    // Adding content observer to update the trips list, when the list changes in the DB
+                    getContext().getContentResolver().registerContentObserver(
+                            AtlasContract.TripEntry.CONTENT_URI,
+                            true,
+                            new TripObserver(new Handler(), getContext()));
+
+                    // TODO: Add comments
+                    // Extracting trips to upload
+                    Cursor cursorToUploadTrips = getContext().getContentResolver().query(
                             AtlasContract.TripEntry.CONTENT_URI,
                             new String[]{AtlasContract.TripEntry._ID,
                                     "count(" + AtlasContract.TripEntry.COLUMN_DATE + ")",
                                     AtlasContract.TripEntry.COLUMN_DATE},
-                            AtlasContract.TripEntry.COLUMN_LABELLED + " = ?",
-                            new String[]{"0"},
+                            AtlasContract.TripEntry.COLUMN_ACTIVE + " = ? and " +
+                                    AtlasContract.TripEntry.COLUMN_EXPORTED + " = ?",
+                            new String[]{"0", "0"},
                             AtlasContract.TripEntry.COLUMN_DATE + " ASC");
                     CursorAdapter cursorAdapter = new CursorAdapter(
                             getContext(),
-                            cursor,
+                            cursorToUploadTrips,
                             0) {
                         @Override
                         public View newView(Context context, Cursor cursor, ViewGroup parent) {
@@ -376,10 +665,10 @@ public class AtlasII extends AppCompatActivity implements
                         public void bindView(View view, Context context, Cursor cursor) {
                             TextView textViewTrip = (TextView) view.findViewById(R.id.textview_trip);
                             TextView textViewTripCount = (TextView) view.findViewById(R.id.textview_tripcount);
-                            // TODO: Update
+
                             // Set the labelled trips' icon
-                            /*ImageView imageView = (ImageView) view.findViewById(R.id.icon_trip);
-                            imageView.setImageResource(R.drawable.ic_done);*/
+                            ImageView imageView = (ImageView) view.findViewById(R.id.icon_trip);
+                            imageView.setImageResource(R.drawable.ic_to_upload);
                             /*TimeZone timeZone = Calendar.getInstance().getTimeZone();
                             SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
                             formatter.setTimeZone(timeZone);*/
@@ -393,7 +682,7 @@ public class AtlasII extends AppCompatActivity implements
                             textViewTripCount.setText(tripCount + " trip(s)");
 
                             // Specify click action for the listview items
-                            listViewUnlabelledTrips.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                            listViewToUploadTrips.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                                 // Redirecting to trip details page
                                 @Override
                                 public void onItemClick(AdapterView<?> parent, View view, int position,
@@ -403,10 +692,13 @@ public class AtlasII extends AppCompatActivity implements
                                     String tripsDate = (String) ((TextView) view.
                                             findViewById(R.id.textview_trip))
                                             .getText();
-
-                                    intent.putExtra(getContext().getString(
+                                    extras.putBoolean(getContext().getString(
+                                            R.string.intent_msg_trips_exported),
+                                            false);
+                                    extras.putString(getContext().getString(
                                             R.string.intent_msg_trips_date),
                                             tripsDate);
+                                    intent.putExtras(extras);
                                     startActivity(intent);
                                 }
                             });
@@ -414,7 +706,77 @@ public class AtlasII extends AppCompatActivity implements
                     };
 
                     // Attach cursor adapter to the ListView
-                    listViewUnlabelledTrips.setAdapter(cursorAdapter);
+                    listViewToUploadTrips.setAdapter(cursorAdapter);
+
+
+                    /*// Extracting uploaded trips
+                    Cursor cursorUploadedTrips = getContext().getContentResolver().query(
+                            AtlasContract.TripEntry.CONTENT_URI,
+                            new String[]{AtlasContract.TripEntry._ID,
+                                    "count(" + AtlasContract.TripEntry.COLUMN_DATE + ")",
+                                    AtlasContract.TripEntry.COLUMN_DATE},
+                            AtlasContract.TripEntry.COLUMN_ACTIVE + " = ? and " +
+                                    AtlasContract.TripEntry.COLUMN_EXPORTED + " != ?",
+                            new String[]{"0", "0"},
+                            AtlasContract.TripEntry.COLUMN_DATE + " ASC");
+                    cursorAdapter = new CursorAdapter(
+                            getContext(),
+                            cursorUploadedTrips,
+                            0) {
+                        @Override
+                        public View newView(Context context, Cursor cursor, ViewGroup parent) {
+                            return LayoutInflater.from(context).inflate(
+                                    R.layout.listitem_trip, parent, false);
+                        }
+
+                        @Override
+                        public void bindView(View view, Context context, Cursor cursor) {
+                            TextView textViewTrip = (TextView) view.findViewById(R.id.textview_trip);
+                            TextView textViewTripCount = (TextView) view.findViewById(R.id.textview_tripcount);
+
+                            // Set the labelled trips' icon
+                            ImageView imageView = (ImageView) view.findViewById(R.id.icon_trip);
+                            imageView.setImageResource(R.drawable.ic_done);
+                            String strTripDate = cursor.getString(cursor.getColumnIndexOrThrow(
+                                    AtlasContract.TripEntry.COLUMN_DATE));
+                            int tripCount = cursor.getInt(
+                                    cursor.getColumnIndexOrThrow("count(" + AtlasContract.TripEntry.COLUMN_DATE + ")"));
+                            //String tripDate = formatter.format(new Date(Long.parseLong(strTripDate)));
+                            //textViewTrip.setText(tripDate);
+                            textViewTrip.setText(strTripDate);
+                            textViewTripCount.setText(tripCount + " trip(s)");
+
+                            // Specify click action for the listview items
+                            listViewUploadedTrips.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                                // Redirecting to trip details page
+                                @Override
+                                public void onItemClick(AdapterView<?> parent, View view, int position,
+                                                        long id) {
+                                    Intent intent = new Intent(getContext(), TripsActivity.class);
+                                    // Extract selected trips' date
+                                    String tripsDate = (String) ((TextView) view.
+                                            findViewById(R.id.textview_trip))
+                                            .getText();
+                                    extras.putBoolean(getContext().getString(
+                                            R.string.intent_msg_trips_exported),
+                                            true);
+                                    extras.putString(getContext().getString(
+                                            R.string.intent_msg_trips_date),
+                                            tripsDate);
+                                    intent.putExtras(extras);
+                                    startActivity(intent);
+                                }
+                            });
+                        }
+                    };
+
+                    // Attach cursor adapter to the ListView
+                    listViewUploadedTrips.setAdapter(cursorAdapter);*/
+
+                    /*ViewGroup.LayoutParams params = listViewUploadedTrips.getLayoutParams();
+                    params.height = 500;
+                    listViewUploadedTrips.setLayoutParams(params);
+                    listViewUploadedTrips.requestLayout();*/
 
                     break;
 
@@ -434,13 +796,13 @@ public class AtlasII extends AppCompatActivity implements
 
                     // Setting the button action listeners
                     // Logout button:
-                    Button logoutButton = (Button) rootView.findViewById(R.id.button_logout);
+                    /*Button logoutButton = (Button) rootView.findViewById(R.id.button_logout);
                     logoutButton.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
                             signOut();
                         }
-                    });
+                    });*/
                     // Take Survey button:
                     Button takeSurveyButton = (Button) rootView.findViewById(R.id.button_surveys);
                     takeSurveyButton.setOnClickListener(new View.OnClickListener() {
@@ -450,7 +812,7 @@ public class AtlasII extends AppCompatActivity implements
                         }
                     });
 
-                    // TODO: For test, remove later
+                    //For test, remove later
                     //ListView participantListView = (ListView) rootView.findViewById(R.id.participant_info);
                     //ArrayAdapter<String> stringArrayAdapter = new ArrayAdapter<String>(getContext(), R.layout.listitem_text, new String[]{"A", "B"});
                     //participantListView.setAdapter(stringArrayAdapter);
@@ -459,7 +821,7 @@ public class AtlasII extends AppCompatActivity implements
 
                 case 4: // Help tab
                     // Setting the help pages' url
-                    String helpURL = "http://atlaservt.somee.com/mobile/index.html";
+                    String helpURL = getString(R.string.atlas_help_url);
                     // Loading the help pages
                     rootView = inflater.inflate(R.layout.atlas_help_pages, container, false);
                     WebView webView = (WebView) rootView.findViewById(R.id.webView_helpPages);
@@ -490,8 +852,31 @@ public class AtlasII extends AppCompatActivity implements
                             "University of Queensland, All rights reserved." + "\r\n" +
                             "For more information please visit:" + "\r\n" +
                             Html.fromHtml(
-                                    "<a href=\"http://www.civil.uq.edu.au/atlas\">www.civil.uq.edu.au/atlas</a>"));
+                                    "<a href=\"http://civil.uq.edu.au/atlas\">civil.uq.edu.au/atlas</a>"));
                     textView.setMovementMethod(LinkMovementMethod.getInstance());
+
+                    // For test, remove the button and the code when done
+                    /*Button testButton = (Button) rootView.findViewById(R.id.btn_test);
+                    testButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            ContentValues tripValues = new ContentValues();
+                            tripValues.put(AtlasContract.TripEntry.COLUMN_EXPORTED, false);
+                            int nRows = getContext().getContentResolver().update(
+                                    AtlasContract.TripEntry.CONTENT_URI,
+                                    tripValues,
+                                    null,
+                                    null);
+                        }
+                    });*/
+                    /*Button testButton = (Button) rootView.findViewById(R.id.btn_test);
+                    testButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            signOut();
+                        }
+                    });*/
+                    ////////////////////////////////////////////////////////////
 
                     break;
             }
@@ -515,7 +900,7 @@ public class AtlasII extends AppCompatActivity implements
             editor.commit();
 
             // The user is redirected to the login activity
-            Intent intent = new Intent(getContext(), LoginActivity.class);
+            Intent intent = new Intent(getContext(), RegisterActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(intent);
             getActivity().finish();
@@ -635,6 +1020,7 @@ public class AtlasII extends AppCompatActivity implements
         @Override
         public int getCount() {
             // Show 5 total pages.
+            //return 4;
             return 5;
         }
 
@@ -656,3 +1042,4 @@ public class AtlasII extends AppCompatActivity implements
         }
     }
 }
+

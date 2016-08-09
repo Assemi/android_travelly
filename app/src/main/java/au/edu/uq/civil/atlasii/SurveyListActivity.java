@@ -73,7 +73,7 @@ public class SurveyListActivity extends AppCompatActivity implements
                 Uri.Builder builder = new Uri.Builder();
                 builder.scheme("http")
                         //.authority(getString(R.string.atlas_server_url))
-                        .authority("atlaservt.somee.com")
+                        .authority(getString(R.string.atlas_server_url))
                         //.appendPath(getString(R.string.path_active_surveys));
                         .appendPath("GetActiveSurveys.aspx");
                 String myUrl = builder.build().toString();

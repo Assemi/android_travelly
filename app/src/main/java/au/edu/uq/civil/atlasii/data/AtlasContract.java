@@ -28,8 +28,8 @@ public class AtlasContract {
     public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
 
     // Possible paths (appended to base content URI for possible URI's)
-    // For instance, content://au.edu.uq.civil.atlasii/trip/ is a valid path for
-    // looking at trip data. content://au.edu.uq.civil.atlasii/givemeroot/ will fail,
+    // For instance, content://au.edu.uq.civil.wander/trip/ is a valid path for
+    // looking at trip data. content://au.edu.uq.civil.wander/givemeroot/ will fail,
     // as the ContentProvider hasn't been given any information on what to do with "givemeroot".
     public static final String PATH_TRIP = "trip";
     public static final String PATH_GEODATA = "geo";
@@ -125,10 +125,10 @@ public class AtlasContract {
         public static final String COLUMN_ACTIVE = "isActive";
         public static final String COLUMN_LABELLED = "isLabelled";
         public static final String COLUMN_TRIP_ATTRIBUTES = "tripAttrs";
-        /*public static final String COLUMN_MIN_LATITUDE = "minLatitude";
+        public static final String COLUMN_MIN_LATITUDE = "minLatitude";
         public static final String COLUMN_MAX_LATITUDE = "maxLatitude";
         public static final String COLUMN_MIN_LONGITUDE = "minLongitude";
-        public static final String COLUMN_MAX_LONGITUDE = "maxLongitude";*/
+        public static final String COLUMN_MAX_LONGITUDE = "maxLongitude";
 
         // TODO: Complete the rest of the class
         // TODO: Table joins should be defined

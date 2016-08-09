@@ -32,7 +32,7 @@ public class SplashActivity extends AppCompatActivity {
 
                     // If the user has not already signed in, he/she is redirected to sign in activity
                     if(username == "") {
-                        Intent intent = new Intent(SplashActivity.this, LoginActivity.class);
+                        Intent intent = new Intent(SplashActivity.this, RegisterActivity.class);
                         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         startActivity(intent);
                         finish();

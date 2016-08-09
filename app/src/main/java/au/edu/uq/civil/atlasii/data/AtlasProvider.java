@@ -119,13 +119,19 @@ public class AtlasProvider extends ContentProvider {
     }
 
     private Cursor getTripDataForDate(
-            Uri uri, String[] projection, String sortOrder) {
+            Uri uri, String[] projection, String selection, String[] selectionArgs,
+            String sortOrder) {
         String date = AtlasContract.TripEntry.getDateFromUri(uri);
+        String[] combinedSelectionArgs = new String[1 + selectionArgs.length];
+        combinedSelectionArgs[0] = date;
+        for (int i = 1; i <= selectionArgs.length; ++i) {
+            combinedSelectionArgs[i] = selectionArgs[i - 1];
+        }
 
         return sTripQueryBuilder.query(mOpenHelper.getReadableDatabase(),
                 projection,
-                AtlasContract.TripEntry.COLUMN_DATE + " LIKE ?",
-                new String[]{date},
+                AtlasContract.TripEntry.COLUMN_DATE + " LIKE ? and " + selection,
+                combinedSelectionArgs,
                 null,
                 null,
                 sortOrder
@@ -233,7 +239,7 @@ public class AtlasProvider extends ContentProvider {
             }
             // "trip/*"
             case TRIP_WITH_DATE: {
-                retCursor = getTripDataForDate(uri, projection, sortOrder);
+                retCursor = getTripDataForDate(uri, projection, selection, selectionArgs, sortOrder);
                 break;
             }
 
@@ -278,17 +284,24 @@ public class AtlasProvider extends ContentProvider {
 
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
-        // Getting a writable database
+        final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+        final int match = sUriMatcher.match(uri);
+        int affectedRows = 0;
 
-        // Using the uriMatcher to match the URI's we are going to handle.  If it doesn't match
-        // these, throw an UnsupportedOperationException.
+        switch (match) {
+            case TRIP: {
+                affectedRows = db.delete(AtlasContract.TripEntry.TABLE_NAME, selection, selectionArgs);
+                if ( affectedRows <= 0 )
+                    throw new android.database.SQLException("Failed to delete rows in " + uri);
+                break;
+            }
+            default:
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
+        }
+        getContext().getContentResolver().notifyChange(uri, null);
 
-        // A null value deletes all rows.  In my implementation of this, I only notified
-        // the uri listeners (using the content resolver) if the rowsDeleted != 0 or the selection
-        // is null.
-
-        // Returning the actual rows deleted
-        return 0;
+        // Returning the number of rows impacted by the delete.
+        return affectedRows;
     }
 
     /*private void normalizeDate(ContentValues values) {
@@ -302,8 +315,24 @@ public class AtlasProvider extends ContentProvider {
     @Override
     public int update(
             Uri uri, ContentValues values, String selection, String[] selectionArgs) {
-        // We return the number of rows impacted by the update.
-        return 0;
+        final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+        final int match = sUriMatcher.match(uri);
+        int affectedRows = 0;
+
+        switch (match) {
+            case TRIP: {
+                affectedRows = db.update(AtlasContract.TripEntry.TABLE_NAME, values, selection, selectionArgs);
+                if ( affectedRows <= 0 )
+                    throw new android.database.SQLException("Failed to update rows in " + uri);
+                break;
+            }
+            default:
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
+        }
+        getContext().getContentResolver().notifyChange(uri, null);
+
+        // Returning the number of rows impacted by the update.
+        return affectedRows;
     }
 
     /*@Override

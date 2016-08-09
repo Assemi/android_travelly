@@ -11,13 +11,12 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
-import android.view.KeyEvent;
+import android.util.Patterns;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -28,20 +27,23 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.regex.Pattern;
 
 /**
- * A login screen that offers login via email/password.
+ * A registration screen that offers login via email/password.
  */
-public class LoginActivity extends AppCompatActivity {
+public class RegisterActivity extends AppCompatActivity {
 
     /**
-     * Keep track of the login task to ensure we can cancel it if requested.
+     * Keep track of the registration task
      */
-    private UserLoginTask mAuthTask = null;
+    private UserRegisterTask mAuthTask = null;
 
     // UI references.
-    private EditText mUserView;
-    private EditText mPasswordView;
+    private EditText mTxtUsername;
+    private EditText mTxtEmail;
+    private EditText mTxtPassword;
+    private EditText mTxtConfirmPassword;
     private View mProgressView;
     private View mLoginFormView;
 
@@ -51,9 +53,11 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
 
         // Set up the login form.
-        mUserView = (EditText) findViewById(R.id.username);
-        mPasswordView = (EditText) findViewById(R.id.password);
-        mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+        mTxtUsername = (EditText) findViewById(R.id.username);
+        mTxtEmail = (EditText) findViewById(R.id.email);
+        mTxtPassword = (EditText) findViewById(R.id.password);
+        mTxtConfirmPassword = (EditText) findViewById(R.id.confirmPassword);
+        /*txtPassword.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
                 if (id == R.id.login || id == EditorInfo.IME_NULL) {
@@ -62,52 +66,84 @@ public class LoginActivity extends AppCompatActivity {
                 }
                 return false;
             }
-        });
+        });*/
 
-        Button mSignInButton = (Button) findViewById(R.id.sign_in_button);
-        mSignInButton.setOnClickListener(new OnClickListener() {
+        Button registerButton = (Button) findViewById(R.id.register_button);
+        registerButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                attemptLogin();
+                attemptRegister();
             }
         });
 
-        mLoginFormView = findViewById(R.id.login_form);
-        mProgressView = findViewById(R.id.login_progress);
+        mLoginFormView = findViewById(R.id.register_form);
+        mProgressView = findViewById(R.id.register_progress);
     }
 
-
     /**
-     * Attempts to sign in the account specified by the login form.
+     * Attempts to register the account specified by the register form.
      * If there are form errors (missing fields, etc.), the
-     * errors are presented and no actual login attempt is made.
+     * errors are presented and no actual attempt is made.
      */
-    private void attemptLogin() {
+    private void attemptRegister() {
         if (mAuthTask != null) {
             return;
         }
 
         // Reset errors.
-        mUserView.setError(null);
-        mPasswordView.setError(null);
+        mTxtUsername.setError(null);
+        mTxtEmail.setError(null);
+        mTxtPassword.setError(null);
+        mTxtConfirmPassword.setError(null);
 
-        // Store values at the time of the login attempt.
-        String username = mUserView.getText().toString();
-        String password = mPasswordView.getText().toString();
+        // Store values at the time of the registration attempt.
+        String username = mTxtUsername.getText().toString();
+        String email = mTxtEmail.getText().toString();
+        String password = mTxtPassword.getText().toString();
+        String confirmPassword = mTxtConfirmPassword.getText().toString();
 
         boolean cancel = false;
         View focusView = null;
 
-        // Check if the user entered a password
-        if (TextUtils.isEmpty(password)) {
-            mPasswordView.setError(getString(R.string.error_field_required));
-            focusView = mPasswordView;
+        Pattern validUsernamePattern = Pattern.compile("[a-zA-Z0-9\\.\\_]+");
+
+        // Check if the user entered an acceptable username
+        if (TextUtils.isEmpty(username)) {
+            mTxtUsername.setError(getString(R.string.error_field_required));
+            focusView = mTxtUsername;
+            cancel = true;
+        } else if (!validUsernamePattern.matcher(username).matches()) {
+            mTxtUsername.setError(getString(R.string.error_username_invalid));
+            focusView = mTxtUsername;
             cancel = true;
         }
-        // Check if the user entered a username
-        if (TextUtils.isEmpty(username)) {
-            mUserView.setError(getString(R.string.error_field_required));
-            focusView = mUserView;
+
+        // Check if the user entered an acceptable email
+        if (TextUtils.isEmpty(email)) {
+            mTxtEmail.setError(getString(R.string.error_field_required));
+            focusView = mTxtEmail;
+            cancel = true;
+        } else if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            mTxtEmail.setError(getString(R.string.error_email_invalid));
+            focusView = mTxtEmail;
+            cancel = true;
+        }
+
+        // Check if the user entered a password
+        if (TextUtils.isEmpty(password)) {
+            mTxtPassword.setError(getString(R.string.error_field_required));
+            focusView = mTxtPassword;
+            cancel = true;
+        }
+
+        // Check if the user correctly confirmed the password
+        if (TextUtils.isEmpty(confirmPassword)) {
+            mTxtConfirmPassword.setError(getString(R.string.error_field_required));
+            focusView = mTxtConfirmPassword;
+            cancel = true;
+        } else if (!password.equals(confirmPassword)) {
+            mTxtConfirmPassword.setError(getString(R.string.error_wrong_password));
+            focusView = mTxtConfirmPassword;
             cancel = true;
         }
 
@@ -119,7 +155,7 @@ public class LoginActivity extends AppCompatActivity {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true);
-            mAuthTask = new UserLoginTask(username, password);
+            mAuthTask = new UserRegisterTask(username, email, password);
             mAuthTask.execute((Void) null);
         }
     }
@@ -165,14 +201,16 @@ public class LoginActivity extends AppCompatActivity {
      * Represents an asynchronous login/registration task used to authenticate
      * the user.
      */
-    public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
+    public class UserRegisterTask extends AsyncTask<Void, Void, Boolean> {
 
         private String mUsername;
+        private String mEmail;
         private String mPassword;
         private String mResult = "";
 
-        UserLoginTask(String username, String password) {
+        UserRegisterTask(String username, String email, String password) {
             mUsername = username;
+            mEmail = email;
             mPassword = password;
         }
 
@@ -180,30 +218,29 @@ public class LoginActivity extends AppCompatActivity {
         protected Boolean doInBackground(Void... params) {
             // Attempt authentication against a network service.
             try {
-                return signIn();
+                return registerUser();
             } catch (IOException e) {
                 e.printStackTrace();
             }
 
-            // TODO: register the new account here.
             return true;
         }
 
         // This method authenticates user on the server
-        private boolean signIn() throws IOException {
+        private boolean registerUser() throws IOException {
 
             InputStream inputStream = null;
-            String contentAsString = "";
             boolean result = false;
             String urlParameters = "username=" + URLEncoder.encode(mUsername, "UTF-8") +
-                    "&password=" + URLEncoder.encode(mPassword, "UTF-8");
+                    "&password=" + URLEncoder.encode(mPassword, "UTF-8") +
+                    "&email=" + URLEncoder.encode(mEmail, "UTF-8");
 
             try {
                 // Creating request URL
                 Uri.Builder builder = new Uri.Builder();
                 builder.scheme("http")
                         .authority(getString(R.string.atlas_server_url))
-                        .appendPath(getString(R.string.path_signin));
+                        .appendPath(getString(R.string.path_register));
                 String myUrl = builder.build().toString();
                 URL url = new URL(builder.build().toString());
 
@@ -236,8 +273,30 @@ public class LoginActivity extends AppCompatActivity {
                     inputStream = conn.getInputStream();
                     // Convert the InputStream into a string
                     mResult = readIt(inputStream);
+
+                    // Check whether the username was accepted by the server
+                    if(!mResult.substring(0,3).equals("200")) {
+                        runOnUiThread(new Runnable() {
+                            public void run() {
+                                Toast.makeText(getApplicationContext(),
+                                        "An error occurred while registering your username. Please try a different username!",
+                                        Toast.LENGTH_LONG)
+                                        .show();
+                            }
+                        });
+
+                        result = false;
+                    }
                 }
                 // TODO: Change- Errors should be managed and appropriate messages should be shown
+                else {
+                    InputStream errorStream = conn.getErrorStream();
+                    if (errorStream != null) {
+                        String strError = readIt(errorStream);
+                        errorStream.close();
+                    }
+                }
+
                 // Makes sure that the InputStream is closed after the app is
                 // finished using it.
             } finally {
@@ -277,28 +336,44 @@ public class LoginActivity extends AppCompatActivity {
             showProgress(false);
 
             if (success) {
-                // Retrieving the email address from the server response
+                /*// Retrieving the email address from the server response
                 // Finding the email in the response
                 int inx = mResult.indexOf("?email=");
-                String email = mResult.substring(inx + 7, mResult.indexOf("&", inx + 1));
+                int endInx = mResult.indexOf("&", inx + 1);
+                String email = "";
+                if(endInx > 0) {
+                    mResult.substring(inx + 7, endInx);
+                }*/
 
                 // Storing the username, password and email in shared preferences
                 SharedPreferences settings = getSharedPreferences(getApplicationContext().getString(R.string.shared_preferences), 0);
                 SharedPreferences.Editor editor = settings.edit();
                 editor.putString("Username", mUsername);
                 editor.putString("Password", mPassword);
-                editor.putString("Email", email);
+                editor.putString("Email", mEmail);
                 // Commit the edits!
                 editor.commit();
 
                 finish();
 
-                // The user is redirected to the main activity
+                /*// The user is redirected to the main activity
                 Intent intent = new Intent(getApplicationContext(), AtlasII.class);
+                startActivity(intent);*/
+                // The user is redirected to the demographics survey
+                Intent intent = new Intent(getApplicationContext(), DemographicsSurvey.class);
                 startActivity(intent);
             } else {
-                mPasswordView.setError(getString(R.string.error_incorrect_password));
-                mPasswordView.requestFocus();
+                /*mTxtPassword.setError(getString(R.string.error_incorrect_password));
+                mTxtPassword.requestFocus();*/
+                runOnUiThread(new Runnable() {
+
+                    public void run() {
+                        Toast.makeText(getApplicationContext(),
+                                "An error occurred while registering your username. Please try a different username!",
+                                Toast.LENGTH_LONG)
+                                .show();
+                    }
+                });
             }
         }
 

@@ -33,7 +33,7 @@ public class LocationReceiver extends BroadcastReceiver {
     boolean mIsLiveTracking = false;
     long mTripID = 0;
     float mTripDistance = 0;
-    int mTripDuration = 0;
+    long mTripDuration = 0;
     double mTripMinLat = 0;
     double mTripMaxLat = 0;
     double mTripMinLon = 0;
@@ -56,6 +56,7 @@ public class LocationReceiver extends BroadcastReceiver {
             mLastLocation.setTime(lastTimestamp);
         }
         mIsLiveTracking = settings.getBoolean("Location_Recording", false);
+        mTripDistance = settings.getFloat("Trip_Distance", 0);
 
         if(locations != null) {
             // Extracting the last recorded location
@@ -67,7 +68,7 @@ public class LocationReceiver extends BroadcastReceiver {
             float currentHeading = lastLocation.getBearing();
             float currentAccuracy = lastLocation.getAccuracy();
             float currentSpeed = lastLocation.getSpeed();
-            
+
             // TODO: Use projection
             // Extracting variables
             LatLng point = new LatLng(currentLatitude, currentLongitude);
@@ -79,10 +80,16 @@ public class LocationReceiver extends BroadcastReceiver {
                 if (mLastLocation.getTime() < currentTimestamp) {
                     // Checking whether the recording is in progress
                     if (mIsLiveTracking) {
+                        // Adding the calculated distance to the trip distance
+                        mTripDistance += (long)distance;
+                        editor = settings.edit();
+                        editor.putFloat("Trip_Distance", mTripDistance);
+                        editor.commit();
+
                         // TODO: Make sure this is the right place - THE TIME CANNOT BE COMPARED WITH LAST LOCATION
                         // Checking the idle time and the distance between the current and last known location
-                        if ((abs(Calendar.getInstance().getTimeInMillis() - mLastLocation.getTime()) >= 60000) &&
-                                (distance <= 100)){
+                        if ((abs(Calendar.getInstance().getTimeInMillis() - mLastLocation.getTime()) >= 180000) &&
+                                (distance <= 200)){
                             // Stop recording the trip
                             stopRecordingTrip(context);
                         }
@@ -120,8 +127,18 @@ public class LocationReceiver extends BroadcastReceiver {
                         if(distance >= 50) {
                             // If so, start recording a trip
                             mTripID = recordTrip(context, currentTimestamp, point);
+                            mLastLocation = new Location("dummyprovider");
+                            mLastLocation.setLatitude(point.latitude);
+                            mLastLocation.setLongitude(point.longitude);
+                            mLastLocation.setTime(currentTimestamp);
+
                             editor = settings.edit();
+                            editor.putString("Location_Last_Lat", String.valueOf(mLastLocation.getLatitude()));
+                            editor.putString("Location_Last_Lon", String.valueOf(mLastLocation.getLongitude()));
+                            //editor.putLong("Trip_Start_Time", settings.getLong("Location_Last_Time", -1));
+                            editor.putLong("Location_Last_Time", mLastLocation.getTime());
                             editor.putLong("Trip_ID", mTripID);
+                            editor.putLong("Trip_Start_Time", mLastLocation.getTime());
                             editor.commit();
                         }
                     }
@@ -147,10 +164,10 @@ public class LocationReceiver extends BroadcastReceiver {
         mLastLocation = null;
 
         // Reset min and max latitudes and longitudes
-        mTripMinLat = 0;
-        mTripMaxLat = 0;
-        mTripMinLon = 0;
-        mTripMaxLon = 0;
+        mTripMinLat = point.latitude;
+        mTripMaxLat = point.latitude;
+        mTripMinLon = point.longitude;
+        mTripMaxLon = point.longitude;
 
         // Reset the trip distance and duration
         mTripDistance = 0;
@@ -161,13 +178,13 @@ public class LocationReceiver extends BroadcastReceiver {
 
         SharedPreferences settings = context.getSharedPreferences(context.getString(R.string.shared_preferences), 0);
         SharedPreferences.Editor editor = settings.edit();
-        editor.putString("Location_Last_Lat", "0");
-        editor.putString("Location_Last_Lon", "0");
+        editor.putString("Location_Last_Lat", String.valueOf(point.latitude));
+        editor.putString("Location_Last_Lon", String.valueOf(point.longitude));
         editor.putLong("Location_Last_Time", -1);
-        editor.putString("Trip_Min_Lat", "0");
-        editor.putString("Trip_Max_Lat", "0");
-        editor.putString("Trip_Min_Lon", "0");
-        editor.putString("Trip_Max_Lon", "0");
+        editor.putString("Trip_Min_Lat", String.valueOf(mTripMinLat));
+        editor.putString("Trip_Max_Lat", String.valueOf(mTripMaxLat));
+        editor.putString("Trip_Min_Lon", String.valueOf(mTripMinLon));
+        editor.putString("Trip_Max_Lon", String.valueOf(mTripMaxLon));
         editor.putFloat("Trip_Distance", 0);
         editor.putInt("Trip_Duration", 0);
         editor.putBoolean("Location_Recording", true);
@@ -186,7 +203,7 @@ public class LocationReceiver extends BroadcastReceiver {
         tripValues.put(AtlasContract.TripEntry.COLUMN_DATE, tripDate);
         tripValues.put(AtlasContract.TripEntry.COLUMN_START_TIME, currentTimestamp);
         tripValues.put(AtlasContract.TripEntry.COLUMN_EXPORTED, false);
-        tripValues.put(AtlasContract.TripEntry.COLUMN_ACTIVE, false);
+        tripValues.put(AtlasContract.TripEntry.COLUMN_ACTIVE, true);
         tripValues.put(AtlasContract.TripEntry.COLUMN_LABELLED, false);
 
         // Insert the record into the database
@@ -258,14 +275,62 @@ public class LocationReceiver extends BroadcastReceiver {
         return geodataRowId;
     }
 
-    // TODO: This method should be completed
-    private void stopRecordingTrip(Context context) {
-        // Setting the recording in progress flag to false
+    private int stopRecordingTrip(Context context) {
+        // Retrieving trip data to update the database
         SharedPreferences settings = context.getSharedPreferences(context.getString(R.string.shared_preferences), 0);
+        mTripID = settings.getLong("Trip_ID", 0);
+        mTripDistance = settings.getFloat("Trip_Distance", 0);
+        long startTime = settings.getLong("Trip_Start_Time", -1);
+        long endTime = settings.getLong("Location_Last_Time", -1);
+        mTripMinLat = Double.parseDouble(settings.getString("Trip_Min_Lat", "0"));
+        mTripMaxLat = Double.parseDouble(settings.getString("Trip_Max_Lat", "0"));
+        mTripMinLon = Double.parseDouble(settings.getString("Trip_Min_Lon", "0"));
+        mTripMaxLon = Double.parseDouble(settings.getString("Trip_Max_Lon", "0"));
+        // Setting the recording in progress flag to false
         SharedPreferences.Editor editor = settings.edit();
         editor.putBoolean("Location_Recording", false);
         editor.commit();
-
         mIsLiveTracking = false;
+
+        /*// Calculating trip duration
+        if((startTime != -1) && (endTime != -1)) {
+            mTripDuration = (endTime - startTime) / 1000;
+        }
+        else {
+            mTripDuration = 0;
+        }*/
+
+        // Updating the trip in the database
+        // Create a new map of values, where column names are the keys
+        ContentValues tripValues = new ContentValues();
+        tripValues.put(AtlasContract.TripEntry.COLUMN_END_TIME, endTime);
+        tripValues.put(AtlasContract.TripEntry.COLUMN_DISTANCE, mTripDistance);
+        tripValues.put(AtlasContract.TripEntry.COLUMN_MIN_LATITUDE, mTripMinLat);
+        tripValues.put(AtlasContract.TripEntry.COLUMN_MAX_LATITUDE, mTripMaxLat);
+        tripValues.put(AtlasContract.TripEntry.COLUMN_MAX_LONGITUDE, mTripMinLon);
+        tripValues.put(AtlasContract.TripEntry.COLUMN_MAX_LONGITUDE, mTripMaxLon);
+        tripValues.put(AtlasContract.TripEntry.COLUMN_ACTIVE, false);
+
+        // Test, remove later:
+        /*Cursor cursor = context.getContentResolver().query(AtlasContract.TripEntry.CONTENT_URI,
+                new String[]{AtlasContract.TripEntry._ID,
+                        "count(" + AtlasContract.TripEntry.COLUMN_DATE + ")",
+                        AtlasContract.TripEntry.COLUMN_DATE},
+                AtlasContract.TripEntry.COLUMN_LABELLED + " = ?",
+                new String[]{"0"},
+                AtlasContract.TripEntry.COLUMN_DATE + " ASC");
+        while(cursor.moveToNext())
+        {
+            long trip = cursor.getLong(cursor.getColumnIndex(AtlasContract.TripEntry._ID));
+        }*/
+
+        // Insert the record into the database
+        int nRows = context.getContentResolver().update(
+                AtlasContract.TripEntry.CONTENT_URI,
+                tripValues,
+                AtlasContract.TripEntry._ID + " = ?",
+                new String[]{String.valueOf(mTripID)});
+
+        return nRows;
     }
 }
