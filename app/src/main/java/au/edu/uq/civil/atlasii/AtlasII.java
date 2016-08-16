@@ -796,13 +796,13 @@ public class AtlasII extends AppCompatActivity implements
 
                     // Setting the button action listeners
                     // Logout button:
-                    /*Button logoutButton = (Button) rootView.findViewById(R.id.button_logout);
+                    Button logoutButton = (Button) rootView.findViewById(R.id.button_logout);
                     logoutButton.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
                             signOut();
                         }
-                    });*/
+                    });
                     // Take Survey button:
                     Button takeSurveyButton = (Button) rootView.findViewById(R.id.button_surveys);
                     takeSurveyButton.setOnClickListener(new View.OnClickListener() {
@@ -850,6 +850,7 @@ public class AtlasII extends AppCompatActivity implements
                     textView.setText("ATLAS II Version " + pVersion + "\r\n" +
                             "Copyright 2012 - " + curCal.get(Calendar.YEAR) + "\r\n" +
                             "University of Queensland, All rights reserved." + "\r\n" +
+                            "Tertiary Student Travel Survey 2016" + "\r\n" +
                             "For more information please visit:" + "\r\n" +
                             Html.fromHtml(
                                     "<a href=\"http://civil.uq.edu.au/atlas\">civil.uq.edu.au/atlas</a>"));

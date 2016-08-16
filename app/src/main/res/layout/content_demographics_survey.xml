@@ -16,31 +16,13 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <!-- Age question -->
-        <TextView
-            android:layout_marginTop="10dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="1. Can you please tell us your age?" />
-        <EditText
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="number"
-            android:ems="10"
-            android:id="@+id/txtAge" />
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@android:color/darker_gray"/>
-
         <!-- Gender question -->
         <TextView
             android:layout_marginTop="30dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="2. Are you male or female?" />
+            android:text="What is your sex?" />
         <Spinner
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -53,56 +35,76 @@
             android:layout_height="1dp"
             android:background="@android:color/darker_gray"/>
 
-        <!-- Address recency question -->
+        <!-- Campus question -->
         <TextView
             android:layout_marginTop="30dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="3. How long have you lived at your current address?" />
+            android:text="Which campus do you attend?" />
         <Spinner
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/spinnerAddrRececncy"
+            android:id="@+id/spinnerCampus"
             android:layout_gravity="end"
             android:spinnerMode="dropdown"
-            android:entries="@array/array_addr_recency"/>
+            android:entries="@array/array_campus"/>
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="@android:color/darker_gray"/>
 
-        <!-- Household size question -->
+        <!-- Study question -->
         <TextView
             android:layout_marginTop="30dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="4. How many adults live at your current address?" />
-        <EditText
+            android:text="Do you study full-time or part-time?" />
+        <Spinner
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="number"
-            android:ems="10"
-            android:id="@+id/txtHSize" />
+            android:id="@+id/spinnerStudy"
+            android:layout_gravity="end"
+            android:spinnerMode="dropdown"
+            android:entries="@array/array_study"/>
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="@android:color/darker_gray"/>
 
-        <!-- Children question -->
+        <!-- Locale question -->
         <TextView
             android:layout_marginTop="30dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="5. How many dependent children under the age of 18 yrs live at your current address?" />
+            android:text="Are you a domestic or international student?" />
+        <Spinner
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/spinnerLocale"
+            android:layout_gravity="end"
+            android:spinnerMode="dropdown"
+            android:entries="@array/array_locale"/>
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"/>
+
+        <!-- Age question -->
+        <TextView
+            android:layout_marginTop="30dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="What is your year of birth?" />
         <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="number"
             android:ems="10"
-            android:id="@+id/txtChildren" />
+            android:id="@+id/txtAge" />
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
@@ -114,7 +116,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="6. What is your current employment status?" />
+            android:text="Which of the following best describes your current employment status?" />
         <Spinner
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -127,21 +129,22 @@
             android:layout_height="1dp"
             android:background="@android:color/darker_gray"/>
 
-        <!-- Dog ownership question -->
+        <!-- Work question -->
         <TextView
+            android:id="@+id/lblWork"
             android:layout_marginTop="30dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="7. Do you own a dog?" />
-        <Spinner
+            android:text="How many hours per week do you spend doing paid work?"/>
+        <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/spinnerDogOwnership"
-            android:layout_gravity="end"
-            android:spinnerMode="dropdown"
-            android:entries="@array/array_yesno"/>
+            android:inputType="number"
+            android:ems="10"
+            android:id="@+id/txtWork"/>
         <View
+            android:id="@+id/sepWork"
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="@android:color/darker_gray"/>
@@ -152,7 +155,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="8. Do you have access to a car?" />
+            android:text="Do you own or have regular access to a motor vehicle?" />
         <Spinner
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -165,88 +168,131 @@
             android:layout_height="1dp"
             android:background="@android:color/darker_gray"/>
 
-        <!-- Mode share question -->
+        <!-- Bike accessibility question -->
         <TextView
             android:layout_marginTop="30dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="9. Approximately what percentage of your overall weekly travel is by:" />
-        <!-- TODO: Update -->
-        <EditText
+            android:text="Do you own or have regular access to a bicycle?" />
+        <Spinner
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="number"
-            android:ems="10"
-            android:hint="Car"
-            android:id="@+id/txtCarShare" />
-        <EditText
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="number"
-            android:ems="10"
-            android:hint="Public Transport"
-            android:id="@+id/txtPTShare" />
-        <EditText
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="number"
-            android:ems="10"
-            android:hint="Walking"
-            android:id="@+id/txtWalkShare" />
-        <EditText
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="number"
-            android:ems="10"
-            android:hint="Bicycle"
-            android:id="@+id/txtBicycleShare" />
-        <EditText
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="number"
-            android:ems="10"
-            android:hint="Other modes"
-            android:id="@+id/txtOtherShare" />
+            android:id="@+id/spinnerBikeAccess"
+            android:layout_gravity="end"
+            android:spinnerMode="dropdown"
+            android:entries="@array/array_yesno"/>
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="@android:color/darker_gray"/>
 
-        <!-- Acquaintance question -->
+        <!-- Licence question -->
         <TextView
             android:layout_marginTop="30dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="10. Would you say that you know:" />
+            android:text="Driver`s Licence?" />
+        <CheckBox android:id="@+id/chkLicence1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="No Licence"
+            android:onClick="onCheckboxClicked"/>
+        <CheckBox android:id="@+id/chkLicence2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Car Licence"
+            android:onClick="onCheckboxClicked"/>
         <Spinner
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/spinnerAcquaintance"
+            android:id="@+id/spinnerLicenceCar"
             android:layout_gravity="end"
             android:spinnerMode="dropdown"
-            android:entries="@array/array_acquaintance"/>
+            android:entries="@array/array_licence"/>
+        <CheckBox android:id="@+id/chkLicence3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Motorcycle Licence"
+            android:onClick="onCheckboxClicked"/>
+        <Spinner
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/spinnerLicenceMotor"
+            android:layout_gravity="end"
+            android:spinnerMode="dropdown"
+            android:entries="@array/array_licence"/>
+        <CheckBox android:id="@+id/chkLicence4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Other Licence"
+            android:onClick="onCheckboxClicked"/>
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="@android:color/darker_gray"/>
 
-        <!-- Local community question -->
+        <!-- Assistance question -->
         <TextView
             android:layout_marginTop="30dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="11. How strongly do you agree with the statement, I feel I belong to the local community:" />
+            android:text="Do you currently require any help or assistance travelling around due to a disability or illness?" />
         <Spinner
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/spinnerLocalCommunity"
+            android:id="@+id/spinnerAssistance"
             android:layout_gravity="end"
             android:spinnerMode="dropdown"
-            android:entries="@array/array_dis_agreement"/>
+            android:entries="@array/array_yesno"/>
         <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"/>
+
+        <!-- Disability question -->
+        <TextView
+            android:id="@+id/lblDisability"
+            android:layout_marginTop="30dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="What are the reasons for your need for help or assistance?" />
+        <CheckBox android:id="@+id/chkDisability1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Short-term health condition (lasting less than six months)"/>
+        <CheckBox android:id="@+id/chkDisability2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Long-term health condition (lasting months or more)"/>
+        <CheckBox android:id="@+id/chkDisability3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Disability (lasting months or more)"/>
+        <CheckBox android:id="@+id/chkDisability4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Old or young age"/>
+        <CheckBox android:id="@+id/chkDisability5"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Difficulty with English language"/>
+        <CheckBox android:id="@+id/chkDisability6"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Other cause"
+            android:onClick="onCheckboxClicked"/>
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="Please specify"
+            android:id="@+id/txtDisabilityOther"/>
+        <View
+            android:id="@+id/sepDisability"
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="@android:color/darker_gray"/>

@@ -9,8 +9,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -27,6 +31,9 @@ import java.util.zip.GZIPOutputStream;
 public class DemographicsSurvey extends AppCompatActivity /*implements View.OnClickListener*/ {
 
     private SurveySubmitTask mSubmitTask = null;
+    private Spinner mSpinnerLicenceCar;
+    private Spinner mSpinnerLicenceMotor;
+    private EditText mTxtDisabilityOther;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +43,45 @@ public class DemographicsSurvey extends AppCompatActivity /*implements View.OnCl
         setSupportActionBar(toolbar);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+
+        // Showing/hiding questions based on the responses to other questions
+        // Employment and work hour questions
+        Spinner mSpinnerEmployment = (Spinner) findViewById(R.id.spinnerEmployment);
+
+        final TextView mLblWork = (TextView) findViewById(R.id.lblWork);
+        final EditText mTxtWork = (EditText) findViewById(R.id.txtWork);
+        final View mSepWork = (View) findViewById(R.id.sepWork);
+
+        mSpinnerEmployment.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+                switch(position) {
+                    case 0:case 1:
+                        mLblWork.setVisibility(View.VISIBLE);
+                        mTxtWork.setVisibility(View.VISIBLE);
+                        mSepWork.setVisibility(View.VISIBLE);
+                        break;
+                    default:
+                        mLblWork.setVisibility(View.GONE);
+                        mTxtWork.setVisibility(View.GONE);
+                        mSepWork.setVisibility(View.GONE);
+                        break;
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parentView) {
+                // Do nothing
+            }
+        });
+
+        mSpinnerLicenceCar = (Spinner) findViewById(R.id.spinnerLicenceCar);
+        mSpinnerLicenceMotor = (Spinner) findViewById(R.id.spinnerLicenceMotor);
+        mTxtDisabilityOther = (EditText) findViewById(R.id.txtDisabilityOther);
+
+        mSpinnerLicenceCar.setVisibility(View.GONE);
+        mSpinnerLicenceMotor.setVisibility(View.GONE);
+        mTxtDisabilityOther.setVisibility(View.GONE);
 
         /*EditText editText1 = (EditText)findViewById(R.id.txtCarShare);
         EditText editText2 = (EditText)findViewById(R.id.txtPTShare);
@@ -76,6 +122,70 @@ public class DemographicsSurvey extends AppCompatActivity /*implements View.OnCl
         return super.onOptionsItemSelected(item);
     }
 
+    public void onCheckboxClicked(View view) {
+        // Is the view now checked?
+        boolean checked = ((CheckBox) view).isChecked();
+
+        final CheckBox mChkLicence1 = (CheckBox) findViewById(R.id.chkLicence1);
+        final CheckBox mChkLicence2 = (CheckBox) findViewById(R.id.chkLicence2);
+        final CheckBox mChkLicence3 = (CheckBox) findViewById(R.id.chkLicence3);
+        final CheckBox mChkLicence4 = (CheckBox) findViewById(R.id.chkLicence4);
+
+        // Check which checkbox was clicked
+        switch(view.getId()) {
+            case R.id.chkLicence1:
+                if (checked) {
+                    // Uncheck other licence options, when "no licence" is selected
+                    mChkLicence2.setChecked(false);
+                    mChkLicence3.setChecked(false);
+                    mChkLicence4.setChecked(false);
+                }
+                else {
+
+                }
+                break;
+            case R.id.chkLicence2:
+                if (checked) {
+                    // Show car licence types, when "car licence" is selected
+                    mSpinnerLicenceCar.setVisibility(View.VISIBLE);
+                    // Uncheck "no licence", when a licence is selected
+                    mChkLicence1.setChecked(false);
+                }
+                else {
+                    mSpinnerLicenceCar.setVisibility(View.GONE);
+                }
+                break;
+            case R.id.chkLicence3:
+                if (checked) {
+                    // Show motorcycle licence types, when "motorcycle licence" is selected
+                    mSpinnerLicenceMotor.setVisibility(View.VISIBLE);
+                    // Uncheck "no licence", when a licence is selected
+                    mChkLicence1.setChecked(false);
+                }
+
+                else {
+                    mSpinnerLicenceMotor.setVisibility(View.GONE);
+                }
+                break;
+            case R.id.chkLicence4:
+                if (checked) {
+                    // Uncheck "no licence", when a licence is selected
+                    mChkLicence1.setChecked(false);
+                } else {
+
+                }
+                break;
+            case R.id.chkDisability6:
+                if (checked) {
+                    mTxtDisabilityOther.setVisibility(View.VISIBLE);
+                } else {
+                    mTxtDisabilityOther.setVisibility(View.GONE);
+                }
+                break;
+            default:
+                break;
+        }
+    }
 
     /*@Override
     public void onClick(View v) {
@@ -112,58 +222,95 @@ public class DemographicsSurvey extends AppCompatActivity /*implements View.OnCl
         // TODO: Response numbers for multiple choice questions should be dynamic
         String responses = "";
         // Question 1
-        EditText editTextAge = (EditText) findViewById(R.id.txtAge);
+        Spinner spinnerGender = (Spinner) findViewById(R.id.spinnerGender);
         // Question 2
-        Spinner spinGender = (Spinner) findViewById(R.id.spinnerGender);
+        Spinner spinnerCampus = (Spinner) findViewById(R.id.spinnerCampus);
         // Question 3
-        Spinner spinAddrRecency = (Spinner) findViewById(R.id.spinnerAddrRececncy);
+        Spinner spinnerStudy = (Spinner) findViewById(R.id.spinnerStudy);
         // Question 4
-        EditText editTextHSize = (EditText) findViewById(R.id.txtHSize);
+        Spinner spinnerLocale = (Spinner) findViewById(R.id.spinnerLocale);
         // Question 5
-        EditText editTextChildren = (EditText) findViewById(R.id.txtChildren);
+        EditText txtAge = (EditText) findViewById(R.id.txtAge);
         // Question 6
-        Spinner spinEmployment = (Spinner) findViewById(R.id.spinnerEmployment);
+        Spinner spinnerEmployment = (Spinner) findViewById(R.id.spinnerEmployment);
+        EditText txtWork = (EditText) findViewById(R.id.txtWork);
         // Question 7
-        Spinner spinDog = (Spinner) findViewById(R.id.spinnerDogOwnership);
+        Spinner spinnerCarAccess = (Spinner) findViewById(R.id.spinnerCarAccess);
         // Question 8
-        Spinner spinCar = (Spinner) findViewById(R.id.spinnerCarAccess);
+        Spinner spinnerBikeAccess = (Spinner) findViewById(R.id.spinnerBikeAccess);
         // Question 9
-        EditText editTextModeCar = (EditText) findViewById(R.id.txtCarShare);
+        CheckBox chkLicence1 = (CheckBox) findViewById(R.id.chkLicence1);
+        CheckBox chkLicence2 = (CheckBox) findViewById(R.id.chkLicence2);
+        Spinner spinnerLicenceCar = (Spinner) findViewById(R.id.spinnerLicenceCar);
+        CheckBox chkLicence3 = (CheckBox) findViewById(R.id.chkLicence3);
+        Spinner spinnerLicenceMotor = (Spinner) findViewById(R.id.spinnerLicenceMotor);
+        CheckBox chkLicence4 = (CheckBox) findViewById(R.id.chkLicence4);
         // Question 10
-        EditText editTextModePT = (EditText) findViewById(R.id.txtPTShare);
+        Spinner spinnerAssistance = (Spinner) findViewById(R.id.spinnerAssistance);
         // Question 11
-        EditText editTextModeWalk = (EditText) findViewById(R.id.txtWalkShare);
-        // Question 12
-        EditText editTextModeBicycle = (EditText) findViewById(R.id.txtBicycleShare);
-        // Question 13
-        EditText editTextModeOther = (EditText) findViewById(R.id.txtOtherShare);
-        // Question 14
-        Spinner spinAcquaintance = (Spinner) findViewById(R.id.spinnerAcquaintance);
-        // Question 15
-        Spinner spinCommunity = (Spinner) findViewById(R.id.spinnerLocalCommunity);
+        CheckBox chkDisability1 = (CheckBox) findViewById(R.id.chkDisability1);
+        CheckBox chkDisability2 = (CheckBox) findViewById(R.id.chkDisability2);
+        CheckBox chkDisability3 = (CheckBox) findViewById(R.id.chkDisability3);
+        CheckBox chkDisability4 = (CheckBox) findViewById(R.id.chkDisability4);
+        CheckBox chkDisability5 = (CheckBox) findViewById(R.id.chkDisability5);
+        CheckBox chkDisability6 = (CheckBox) findViewById(R.id.chkDisability6);
+        EditText txtDisabilityOther = (EditText) findViewById(R.id.txtDisabilityOther);
+
+        String strLicences = ";";
+        String strDisabilities = ";";
+
+        if(chkLicence1.isChecked()) { // No Licence
+            strLicences = "1;";
+        } else {
+            if(chkLicence2.isChecked()) { // Car Licence
+                strLicences += ((2 + spinnerLicenceCar.getSelectedItemId()) + ";");
+            }
+            if(chkLicence3.isChecked()) { // Motorcycle Licence
+                strLicences += ((6 + spinnerLicenceCar.getSelectedItemId()) + ";");
+            }
+            if(chkLicence4.isChecked()) { // Other Licence
+                strLicences += "10;";
+            }
+        }
+
+        if(chkDisability1.isChecked()) {
+            strDisabilities += "1;";
+        }
+        if(chkDisability2.isChecked()) {
+            strDisabilities += "2;";
+        }
+        if(chkDisability3.isChecked()) {
+            strDisabilities += "3;";
+        }
+        if(chkDisability4.isChecked()) {
+            strDisabilities += "4;";
+        }
+        if(chkDisability5.isChecked()) {
+            strDisabilities += "5;";
+        }
+        if(chkDisability6.isChecked()) {
+            strDisabilities += ("6-" + txtDisabilityOther.getText() + ";");
+        }
+
 
         responses += "{responses:[";
 
         // Reading the responses from the activity page
-        responses = responses + editTextAge.getText() + "," +
-                ";" + (spinGender.getSelectedItemId() + 1) + ";," +
-                ";" + (spinAddrRecency.getSelectedItemId() + 1) + ";," +
-                editTextHSize.getText() + "," +
-                editTextChildren.getText() + "," +
-                ";" + (spinEmployment.getSelectedItemId() + 1) + ";," +
-                ";" + (spinDog.getSelectedItemId() + 1) + ";," +
-                ";" + (spinCar.getSelectedItemId() + 1) + ";," +
-                editTextModeCar.getText() + "," +
-                editTextModePT.getText() + "," +
-                editTextModeWalk.getText() + "," +
-                editTextModeBicycle.getText() + "," +
-                editTextModeOther.getText() + "," +
-                ";" + (spinAcquaintance.getSelectedItemId() + 1) + ";," +
-                ";" + (spinCommunity.getSelectedItemId() + 1) + ";";
+        responses = responses + ";" + (spinnerGender.getSelectedItemId() + 1) + ";," +
+                ";" + (spinnerCampus.getSelectedItemId() + 1) + ";," +
+                ";" + (spinnerStudy.getSelectedItemId() + 1) + ";," +
+                ";" + (spinnerLocale.getSelectedItemId() + 1) + ";," +
+                txtAge.getText() + "," +
+                ";" + (spinnerEmployment.getSelectedItemId() + 1) + "-" + txtWork.getText() + ";," +
+                ";" + (spinnerCarAccess.getSelectedItemId() + 1) + ";," +
+                ";" + (spinnerBikeAccess.getSelectedItemId() + 1) + ";," +
+                strLicences + "," +
+                ";" + (spinnerAssistance.getSelectedItemId() + 1) + ";," +
+                strDisabilities;
 
         // TODO: Question numbers should be dynamic
         // Adding question numbers
-        responses += "],questions:[1023,1024,1025,1026,1027,1028,1029,1030,1031,1032,1033,1034,1035,1036,1037]}";
+        responses += "],questions:[1038,1039,1040,1041,1042,1043,1044,1045,1046,1047,1048]}";
 
         return responses;
     }

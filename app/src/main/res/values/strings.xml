@@ -51,32 +51,40 @@
     <string-array name="array_gender">
         <item>Male</item>
         <item>Female</item>
-    </string-array>
-    <string-array name="array_addr_recency">
-        <item>Less than 6 mths</item>
-        <item>6 mths to less than 12 mths</item>
-        <item>12 mths to less than 2 yrs</item>
-        <item>2 yrs to less than 5 yrs</item>
-        <item>5 yrs to less than 10 yrs</item>
-        <item>10 yrs to less than 20 yrs</item>
-        <item>20 yrs or more</item>
-        <item>Don`t know</item>
-    </string-array>
-    <string-array name="array_employment_status">
-        <item>Full time employed</item>
-        <item>Part time employed</item>
-        <item>On a pension</item>
-        <item>Retired</item>
-        <item>Unemployed and seeking work</item>
-        <item>Home duties</item>
-        <item>Student</item>
         <item>Other</item>
     </string-array>
-    <string-array name="array_acquaintance">
-        <item>None of the people in your community</item>
-        <item>A few of them</item>
-        <item>Many of them</item>
-        <item>Most of the people in your community</item>
+    <string-array name="array_campus">
+        <item>Gatton</item>
+        <item>Herston</item>
+        <item>Ipswitch</item>
+        <item>St Lucia</item>
+        <item>Distance Education student not attending a campus</item>
+        <item>Other / Multi-campus</item>
+    </string-array>
+    <string-array name="array_study">
+        <item>Full-time</item>
+        <item>Part-time</item>
+    </string-array>
+    <string-array name="array_locale">
+        <item>Domestic</item>
+        <item>International</item>
+    </string-array>
+    <string-array name="array_licence">
+        <item>Open licence</item>
+        <item>P2 provisional licence (Green)</item>
+        <item>P1 provisional licence (Red)</item>
+        <item>Learner’s permit</item>
+    </string-array>
+    <string-array name="array_employment_status">
+        <item>Paid work 35 hours or more in a typical week</item>
+        <item>Paid work LESS than 35 hours in a typical week</item>
+        <item>Unemployed – seeking full-time or part-time work</item>
+        <item>Performing home duties or caring for children</item>
+        <item>Volunteer – unpaid job</item>
+        <item>Experiencing a long-term health condition or disability</item>
+        <item>Experiencing a short-term illness or injury</item>
+        <item>Carer - Looking after an ill or disabled student</item>
+        <item>Retired</item>
     </string-array>
     <string-array name="array_yesno">
         <item>Yes</item>
