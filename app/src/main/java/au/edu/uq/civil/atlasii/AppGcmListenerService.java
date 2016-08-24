@@ -70,7 +70,7 @@ public class AppGcmListenerService extends GcmListenerService {
         Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
                 .setSmallIcon(R.drawable.ic_stat_reminder)
-                .setContentTitle("Wander Reminder")
+                .setContentTitle("Atlas Reminder")
                 .setContentText(message)
                 .setAutoCancel(true)
                 .setSound(defaultSoundUri)

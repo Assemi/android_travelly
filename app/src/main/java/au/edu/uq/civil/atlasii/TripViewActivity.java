@@ -1,10 +1,15 @@
 package au.edu.uq.civil.atlasii;
 
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.View;
 import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -29,6 +34,70 @@ public class TripViewActivity extends AppCompatActivity {
 
     // Google Map on Trip View page
     MapView mMapView = null;
+    private static ArrayList mTripModes = null;
+
+    // Trip mode picker dialog
+    public static class ModePickerFragment extends DialogFragment {
+        private String[] tripModes;
+
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            tripModes = getResources().getStringArray(R.array.array_trip_modes);
+            if(mTripModes == null)
+                mTripModes = new ArrayList();  // Where the selected modes are stored
+            // Create a list of currently selected items
+            boolean[] checkedItems = new boolean[tripModes.length];
+            for (Object o:mTripModes) {
+                checkedItems[Integer.valueOf(o.toString())] = true;
+            }
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+
+            // Set the dialog title
+            builder.setTitle(R.string.pick_modes)
+                    // Specify the list array, the items to be selected by default (null for none),
+                    // and the listener through which to receive callbacks when items are selected
+                    .setMultiChoiceItems(R.array.array_trip_modes, checkedItems,
+                            new DialogInterface.OnMultiChoiceClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which,
+                                                    boolean isChecked) {
+                                    if (isChecked) {
+                                        // If the user checked the item, add it to the selected items
+                                        mTripModes.add(which);
+                                    } else if (mTripModes.contains(which)) {
+                                        // Else, if the item is already in the array, remove it
+                                        mTripModes.remove(Integer.valueOf(which));
+                                    }
+                                }
+                            })
+                    // Set the action buttons
+                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int id) {
+                            // TODO: User clicked OK, set the modes specified
+                            String strSelectedModes = "  ";
+                            TextView txtTripModes = (TextView) getActivity().findViewById(R.id.txtTripModes);
+                            for (Object o:mTripModes) {
+                                strSelectedModes += tripModes[Integer.valueOf(o.toString())];
+                                strSelectedModes += ", ";
+                            }
+                            if(!strSelectedModes.equals("  "))
+                                strSelectedModes = strSelectedModes.substring(0, strSelectedModes.lastIndexOf(","));
+                            strSelectedModes += " > Tap for change ...";
+                            txtTripModes.setText(strSelectedModes);
+                        }
+                    });
+
+            return builder.create();
+        }
+    }
+
+    public void showModePickerDialog(View v) {
+        DialogFragment newFragment = new ModePickerFragment();
+        newFragment.show(getSupportFragmentManager(), "modePicker");
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -117,10 +186,12 @@ public class TripViewActivity extends AppCompatActivity {
             TextView txtTripDistance = (TextView) findViewById(R.id.txtTripDistance);
             TextView txtTripDuration = (TextView) findViewById(R.id.txtTripDuration);
             TextView txtTripDate = (TextView) findViewById(R.id.txtTripDate);
-            TextView txtTripStart = (TextView) findViewById(R.id.txtTripStart);
-            TextView txtTripEnd = (TextView) findViewById(R.id.txtTripEnd);
+            //TextView txtTripStart = (TextView) findViewById(R.id.txtTripStart);
+            //TextView txtTripEnd = (TextView) findViewById(R.id.txtTripEnd);
             txtTripDistance.setText(String.format("%.2f", (float) (tripDistance / 1000.0)) + "km");
-            txtTripDate.setText("Trip on " + tripDate);
+            txtTripDate.setText("Trip on " + tripDate +
+                    ", " + formatter.format(new Date(tripStartTime)) +
+                    " - " + formatter.format(new Date(tripEndTime)));
             long tripDurationMillis = tripEndTime - tripStartTime;
             String tripDuration = String.format("%02d:%02d:%02d",
                     TimeUnit.MILLISECONDS.toHours(tripDurationMillis),
@@ -129,8 +200,8 @@ public class TripViewActivity extends AppCompatActivity {
                     TimeUnit.MILLISECONDS.toSeconds(tripDurationMillis) -
                             TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(tripDurationMillis)));
             txtTripDuration.setText(tripDuration);
-            txtTripStart.setText("Started at: " + formatter.format(new Date(tripStartTime)));
-            txtTripEnd.setText("Finished at: " + formatter.format(new Date(tripEndTime)));
+            //txtTripStart.setText("Started at: " + formatter.format(new Date(tripStartTime)));
+            //txtTripEnd.setText("Finished at: " + formatter.format(new Date(tripEndTime)));
 
             // Retrieving trip's geo data from the database
             cursor = getContentResolver().query(

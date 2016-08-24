@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Atlas II</string>
+    <string name="app_name">Atlas II QLD</string>
     <string name="action_settings">Settings</string>
     <string name="action_submit">Submit</string>
     <string name="action_upload">Upload</string>
@@ -96,5 +96,45 @@
         <item>Neither agree or disagree</item>
         <item>Disagree</item>
         <item>Strongly disagree</item>
+    </string-array>
+
+    <!-- Strings related to trip labeling -->
+    <string name="pick_modes">Select mode(s)</string>
+    <string-array name="array_trip_purpose">
+        <item>Please choose one</item>
+        <item>Get on/off public transport</item>
+        <item>Refuel my vehicle</item>
+        <item>Work (my workplace)</item>
+        <item>Work (other work reason)</item>
+        <item>Education</item>
+        <item>Social visit</item>
+        <item>Recreation/leisure activity</item>
+        <item>Eat/drink</item>
+        <item>Shopping</item>
+        <item>Personal business</item>
+        <item>Pickup/deliver something (not work-related)</item>
+        <item>Transporting (a) passenger(s)</item>
+        <item>Park/pick-up a vehicle</item>
+        <item>Just accompanying someone</item>
+        <item>Go home</item>
+        <item>Fake trip</item>
+        <item>Other reason</item>
+    </string-array>
+    <string-array name="array_trip_modes">
+        <item>Walking</item>
+        <item>Bicycle</item>
+        <item>Train</item>
+        <item>Light rail</item>
+        <item>School bus</item>
+        <item>Public bus</item>
+        <item>Ferry</item>
+        <item>Charter/Courtesy/Other bus</item>
+        <item>Car/Passenger vehicle</item>
+        <item>Motorcycle/Scooter</item>
+        <item>Goods van/Truck</item>
+        <item>Taxi/Ride share e.g. Uber</item>
+        <item>Mobility Scooter</item>
+        <item>Fake trip</item>
+        <item>Other method</item>
     </string-array>
 </resources>

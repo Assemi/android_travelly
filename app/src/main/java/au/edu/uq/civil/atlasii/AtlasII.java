@@ -847,10 +847,11 @@ public class AtlasII extends AppCompatActivity implements
                     // Loading the about page
                     rootView = inflater.inflate(R.layout.atlas_about_page, container, false);
                     textView = (TextView) rootView.findViewById(R.id.txtAboutAtlas);
-                    textView.setText("ATLAS II Version " + pVersion + "\r\n" +
+                    textView.setText("ATLAS II QLD Version " + pVersion + "\r\n" +
                             "Copyright 2012 - " + curCal.get(Calendar.YEAR) + "\r\n" +
                             "University of Queensland, All rights reserved." + "\r\n" +
-                            "Tertiary Student Travel Survey 2016" + "\r\n" +
+                            "Tertiary Student Travel Survey 2016" + "\r\n" + "\r\n" +
+                            "The app and the survey are for the Queensland Department of Transport and Main Roads." + "\r\n" +
                             "For more information please visit:" + "\r\n" +
                             Html.fromHtml(
                                     "<a href=\"http://civil.uq.edu.au/atlas\">civil.uq.edu.au/atlas</a>"));

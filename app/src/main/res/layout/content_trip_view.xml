@@ -64,25 +64,44 @@
             android:layout_height="1dp"
             android:background="@android:color/darker_gray"/>
 
+        <!-- Trip Purpose -->
         <TextView
             android:layout_marginTop="10dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:id="@+id/txtTripStart"
-            android:text="Started at: 00:00:00"/>
+            android:text="What was the main reason you took this trip?"/>
+        <Spinner
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/spinner_trip_purpose"
+            android:layout_gravity="center_horizontal"
+            android:spinnerMode="dropdown"
+            android:entries="@array/array_trip_purpose"/>
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="@android:color/darker_gray"/>
 
+        <!-- Trip Modes -->
         <TextView
             android:layout_marginTop="10dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:id="@+id/txtTripEnd"
-            android:text="Finished at: 00:00:00"/>
+            android:text="How did you travel?"/>
+        <!--Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Please choose modes ..."
+            android:onClick="showModePickerDialog"/-->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/txtTripModes"
+            android:text=" > Please tap to choose modes ..."
+            android:textAppearance="?android:attr/textAppearanceSmallPopupMenu"
+            android:onClick="showModePickerDialog"/>
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
