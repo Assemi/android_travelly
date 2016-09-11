@@ -239,15 +239,17 @@ public class DemographicsSurvey extends AppCompatActivity /*implements View.OnCl
         // Question 8
         Spinner spinnerBikeAccess = (Spinner) findViewById(R.id.spinnerBikeAccess);
         // Question 9
+        Spinner spinnerGoCard = (Spinner) findViewById(R.id.spinnerGoCardAccess);
+        // Question 10
         CheckBox chkLicence1 = (CheckBox) findViewById(R.id.chkLicence1);
         CheckBox chkLicence2 = (CheckBox) findViewById(R.id.chkLicence2);
         Spinner spinnerLicenceCar = (Spinner) findViewById(R.id.spinnerLicenceCar);
         CheckBox chkLicence3 = (CheckBox) findViewById(R.id.chkLicence3);
         Spinner spinnerLicenceMotor = (Spinner) findViewById(R.id.spinnerLicenceMotor);
         CheckBox chkLicence4 = (CheckBox) findViewById(R.id.chkLicence4);
-        // Question 10
-        Spinner spinnerAssistance = (Spinner) findViewById(R.id.spinnerAssistance);
         // Question 11
+        Spinner spinnerAssistance = (Spinner) findViewById(R.id.spinnerAssistance);
+        // Question 12
         CheckBox chkDisability1 = (CheckBox) findViewById(R.id.chkDisability1);
         CheckBox chkDisability2 = (CheckBox) findViewById(R.id.chkDisability2);
         CheckBox chkDisability3 = (CheckBox) findViewById(R.id.chkDisability3);
@@ -255,9 +257,23 @@ public class DemographicsSurvey extends AppCompatActivity /*implements View.OnCl
         CheckBox chkDisability5 = (CheckBox) findViewById(R.id.chkDisability5);
         CheckBox chkDisability6 = (CheckBox) findViewById(R.id.chkDisability6);
         EditText txtDisabilityOther = (EditText) findViewById(R.id.txtDisabilityOther);
+        // Question 13
+        Spinner spinnerDayStart = (Spinner) findViewById(R.id.spinnerDayStart);
+        // Question 14
+        Spinner spinnerDayLeaveIntention = (Spinner) findViewById(R.id.spinnerDayLeaveIntention);
+        // Question 15
+        CheckBox chkActivity1 = (CheckBox) findViewById(R.id.chkActivity1);
+        CheckBox chkActivity2 = (CheckBox) findViewById(R.id.chkActivity2);
+        CheckBox chkActivity3 = (CheckBox) findViewById(R.id.chkActivity3);
+        CheckBox chkActivity4 = (CheckBox) findViewById(R.id.chkActivity4);
+        // Question 16
+        EditText txtDayNotLeaveReason = (EditText) findViewById(R.id.txtDayNotLeaveReason);
+        // Question 17
+        EditText txtDayLastLeave = (EditText) findViewById(R.id.txtDayLastLeave);
 
         String strLicences = ";";
         String strDisabilities = ";";
+        String strActivities = ";";
 
         if(chkLicence1.isChecked()) { // No Licence
             strLicences = "1;";
@@ -292,6 +308,18 @@ public class DemographicsSurvey extends AppCompatActivity /*implements View.OnCl
             strDisabilities += ("6-" + txtDisabilityOther.getText() + ";");
         }
 
+        if(chkActivity1.isChecked()) {
+            strActivities += "1;";
+        }
+        if(chkActivity2.isChecked()) {
+            strActivities += "2;";
+        }
+        if(chkActivity3.isChecked()) {
+            strActivities += "3;";
+        }
+        if(chkActivity4.isChecked()) {
+            strActivities += "4;";
+        }
 
         responses += "{responses:[";
 
@@ -306,11 +334,17 @@ public class DemographicsSurvey extends AppCompatActivity /*implements View.OnCl
                 ";" + (spinnerBikeAccess.getSelectedItemId() + 1) + ";," +
                 strLicences + "," +
                 ";" + (spinnerAssistance.getSelectedItemId() + 1) + ";," +
-                strDisabilities;
+                strDisabilities + "," +
+                ";" + (spinnerGoCard.getSelectedItemId() + 1) + ";," +
+                ";" + (spinnerDayStart.getSelectedItemId() + 1) + ";," +
+                ";" + (spinnerDayLeaveIntention.getSelectedItemId() + 1) + ";," +
+                strActivities + "," +
+                txtDayNotLeaveReason.getText() + "," +
+                txtDayLastLeave.getText();
 
         // TODO: Question numbers should be dynamic
         // Adding question numbers
-        responses += "],questions:[1038,1039,1040,1041,1042,1043,1044,1045,1046,1047,1048]}";
+        responses += "],questions:[1038,1039,1040,1041,1042,1043,1044,1045,1046,1047,1048,1051,1057,1058,1059,1060,1061]}";
 
         return responses;
     }

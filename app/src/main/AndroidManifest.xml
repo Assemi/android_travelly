@@ -84,15 +84,14 @@
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
             android:value="AIzaSyBAphVMql3bz2XR6R8daF41hzkHl4Gvigw" />
-
         <activity
-            android:name=".SurveyListActivity"
-            android:label="@string/title_activity_survey_list"
+            android:name=".SurveyActivity"
+            android:label="@string/title_activity_survey"
             android:parentActivityName=".AtlasII"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="au.edu.uq.civil.atlasii.AtlasII" />
+                android:value="au.edu.uq.civil.atlasii.SurveyActivity" />
         </activity>
 
         <!-- Providers -->
@@ -127,13 +126,6 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".RegisterActivity" />
-        </activity>
-        <activity android:name=".SurveyActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
     </application>
 

@@ -88,6 +88,7 @@
         <item>Paid work 35 hours or more in a typical week</item>
         <item>Paid work LESS than 35 hours in a typical week</item>
         <item>Unemployed – seeking full-time or part-time work</item>
+        <item>Not working/volunteering - Just studying</item>
         <item>Performing home duties or caring for children</item>
         <item>Volunteer – unpaid job</item>
         <item>Experiencing a long-term health condition or disability</item>
@@ -107,6 +108,13 @@
         <item>Neither agree or disagree</item>
         <item>Disagree</item>
         <item>Strongly disagree</item>
+    </string-array>
+    <string-array name="array_day_start">
+        <item>Please select ...</item>
+        <item>At home</item>
+        <item>At work</item>
+        <item>Travelling between locations</item>
+        <item>At another location</item>
     </string-array>
 
     <!-- Strings related to trip labeling -->

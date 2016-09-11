@@ -971,7 +971,7 @@ public class AtlasII extends AppCompatActivity implements
 
         private void takeSurvey() {
             // The user is redirected to the surveys activity
-            Intent intent = new Intent(getContext(), SurveyListActivity.class);
+            Intent intent = new Intent(getContext(), SurveyActivity.class);
             startActivity(intent);
         }
 

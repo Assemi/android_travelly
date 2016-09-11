@@ -168,13 +168,32 @@
             android:layout_height="1dp"
             android:background="@android:color/darker_gray"/>
 
+        <!-- GoCard accessibility question -->
+        <TextView
+            android:layout_marginTop="30dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="Do you own a go card?" />
+        <Spinner
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/spinnerGoCardAccess"
+            android:layout_gravity="end"
+            android:spinnerMode="dropdown"
+            android:entries="@array/array_yesno"/>
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"/>
+
         <!-- Bike accessibility question -->
         <TextView
             android:layout_marginTop="30dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="Do you own or have regular access to a bicycle?" />
+            android:text="Do you own or have regular access to an adult bicycle in good working order or have a CityCycle subscription?" />
         <Spinner
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -297,5 +316,112 @@
             android:layout_height="1dp"
             android:background="@android:color/darker_gray"/>
 
+        <!-- Travel day question 1 -->
+        <TextView
+            android:id="@+id/lblStart"
+            android:layout_marginTop="30dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="Where were you at 04:00AM?"/>
+        <Spinner
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/spinnerDayStart"
+            android:layout_gravity="end"
+            android:spinnerMode="dropdown"
+            android:entries="@array/array_day_start"/>
+        <View
+            android:id="@+id/sepStart"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"/>
+
+        <!-- Travel day question 2 -->
+        <TextView
+            android:id="@+id/lblLeaveIntention"
+            android:layout_marginTop="30dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="Do you intend to leave this place at all today?"/>
+        <Spinner
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/spinnerDayLeaveIntention"
+            android:layout_gravity="end"
+            android:spinnerMode="dropdown"
+            android:entries="@array/array_yesno"/>
+        <View
+            android:id="@+id/sepLeaveIntention"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"/>
+
+        <!-- Travel day question 3 -->
+        <TextView
+            android:id="@+id/lblActivities"
+            android:layout_marginTop="30dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="Do you intend to undertake any of the following activities from this place today?"/>
+        <CheckBox android:id="@+id/chkActivity1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Walking e.g. dog walk or walk to the shops"/>
+        <CheckBox android:id="@+id/chkActivity2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Cycling e.g. recreational ride"/>
+        <CheckBox android:id="@+id/chkActivity3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Short drive e.g. to the shops"/>
+        <CheckBox android:id="@+id/chkActivity4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Do not leave this place for any travel activities"/>
+        <View
+            android:id="@+id/sepActivities"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"/>
+
+        <!-- Travel day question 4 -->
+        <TextView
+            android:layout_marginTop="30dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="Please give a reason as to why you do not intend to leave this place at all today?" />
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:ems="10"
+            android:id="@+id/txtDayNotLeaveReason" />
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"/>
+
+        <!-- Travel day question 5 -->
+        <TextView
+            android:layout_marginTop="30dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="When did you last leave this place?" />
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:ems="10"
+            android:id="@+id/txtDayLastLeave" />
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"/>
     </LinearLayout>
 </ScrollView>
