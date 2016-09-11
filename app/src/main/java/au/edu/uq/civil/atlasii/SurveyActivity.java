@@ -14,7 +14,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-public class SurveyListActivity extends AppCompatActivity implements
+public class SurveyActivity extends AppCompatActivity  implements
         AsyncResponse {
 
     int mSurveyCount = 0;

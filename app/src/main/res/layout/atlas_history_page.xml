@@ -13,38 +13,68 @@
     android:orientation="vertical"
     android:scrollbars="vertical">
 
-    <!--TextView
+    <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Uploaded trips" />
+        android:text="Labelled trips" />
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="@android:color/darker_gray"/>
 
     <ListView
-        android:id="@+id/listView_UploadedTrips"
+        android:id="@+id/listView_LabelledTrips"
         android:layout_width="match_parent"
         android:layout_height="150dp"
         android:scrollbars="vertical">
-    </ListView-->
+    </ListView>
+    <Button
+        android:id="@+id/btn_uploadTrips"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:text="Upload Labelled Trips" />
+    <ProgressBar
+        android:id="@+id/prgs_upload"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:visibility="invisible" />
+
+    <TextView
+        android:layout_marginTop="20dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Unlabelled trips" />
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/darker_gray"/>
 
     <TextView
         android:layout_marginTop="0dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="To upload trips" />
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@android:color/darker_gray"/>
-
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="Please label these trips:" />
     <ListView
-        android:id="@+id/listView_ToUploadTrips"
+        android:id="@+id/listView_UnlabelledTrips"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scrollbars="vertical">
     </ListView>
+
+    <ProgressBar
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/progressBar" />
+
+    <ProgressBar
+        style="?android:attr/progressBarStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/progressBar2" />
 </LinearLayout>

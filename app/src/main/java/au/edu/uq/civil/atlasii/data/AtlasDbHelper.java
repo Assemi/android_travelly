@@ -12,7 +12,7 @@ import static au.edu.uq.civil.atlasii.data.AtlasContract.*;
  */
 public class AtlasDbHelper extends SQLiteOpenHelper {
     // If you change the database schema, you must increment the database version.
-    private static final int DATABASE_VERSION = 10;
+    private static final int DATABASE_VERSION = 12;
 
     static final String DATABASE_NAME = "HTS_ATLAS.db";
 
@@ -60,7 +60,9 @@ public class AtlasDbHelper extends SQLiteOpenHelper {
                 TripEntry.COLUMN_MIN_LATITUDE + " REAL, " +
                 TripEntry.COLUMN_MAX_LATITUDE + " REAL, " +
                 TripEntry.COLUMN_MIN_LONGITUDE + " REAL, " +
-                TripEntry.COLUMN_MAX_LONGITUDE + " REAL" +
+                TripEntry.COLUMN_MAX_LONGITUDE + " REAL, " +
+                TripEntry.COLUMN_TRIP_PURPOSE + " TEXT, " +
+                TripEntry.COLUMN_TRIP_MODES + " TEXT" +
                 ");";
 
         sqLiteDatabase.execSQL(SQL_CREATE_GEODATA_TABLE);

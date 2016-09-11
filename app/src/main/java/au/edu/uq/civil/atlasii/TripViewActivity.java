@@ -1,6 +1,7 @@
 package au.edu.uq.civil.atlasii;
 
 import android.app.Dialog;
+import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.database.Cursor;
 import android.graphics.Color;
@@ -9,7 +10,11 @@ import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -35,6 +40,8 @@ public class TripViewActivity extends AppCompatActivity {
     // Google Map on Trip View page
     MapView mMapView = null;
     private static ArrayList mTripModes = null;
+
+    long mTripID = -1;
 
     // Trip mode picker dialog
     public static class ModePickerFragment extends DialogFragment {
@@ -75,7 +82,6 @@ public class TripViewActivity extends AppCompatActivity {
                     .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int id) {
-                            // TODO: User clicked OK, set the modes specified
                             String strSelectedModes = "  ";
                             TextView txtTripModes = (TextView) getActivity().findViewById(R.id.txtTripModes);
                             for (Object o:mTripModes) {
@@ -114,6 +120,9 @@ public class TripViewActivity extends AppCompatActivity {
         double maxLat = 0;
         double minLong = 0;
         double maxLong = 0;
+        int isLabelled = 0;
+        String tripPurpose = "";
+        String tripModes = "";
 
         /*FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -126,20 +135,19 @@ public class TripViewActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         // Retrieving trip's id
-        long tripID = -1;
         if (savedInstanceState == null) {
             Bundle extras = getIntent().getExtras();
             if(extras != null) {
-                tripID = extras.getLong(getString(R.string.intent_msg_trip_id));
+                mTripID = extras.getLong(getString(R.string.intent_msg_trip_id));
             }
         } else {
             if(savedInstanceState.getSerializable(getString(R.string.intent_msg_trip_id)) != null) {
-                tripID = (long) savedInstanceState.getSerializable(
+                mTripID = (long) savedInstanceState.getSerializable(
                         getString(R.string.intent_msg_trip_id));
             }
         }
 
-        if(tripID != -1) {
+        if(mTripID != -1) {
             // Initiating Google Map
             mMapView = (MapView) findViewById(R.id.map_trip);
             mMapView.onCreate(savedInstanceState);
@@ -153,7 +161,6 @@ public class TripViewActivity extends AppCompatActivity {
                 }
             });
 
-            // TODO: Add other required trip attributes
             // Retrieving trip's data from the database
             Cursor cursor = getContentResolver().query(
                     //AtlasContract.TripEntry.buildTripUri(tripID),
@@ -166,10 +173,13 @@ public class TripViewActivity extends AppCompatActivity {
                             AtlasContract.TripEntry.COLUMN_MIN_LATITUDE,
                             AtlasContract.TripEntry.COLUMN_MIN_LONGITUDE,
                             AtlasContract.TripEntry.COLUMN_MAX_LATITUDE,
-                            AtlasContract.TripEntry.COLUMN_MAX_LONGITUDE
+                            AtlasContract.TripEntry.COLUMN_MAX_LONGITUDE,
+                            AtlasContract.TripEntry.COLUMN_LABELLED,
+                            AtlasContract.TripEntry.COLUMN_TRIP_PURPOSE,
+                            AtlasContract.TripEntry.COLUMN_TRIP_MODES
                     },
                     AtlasContract.TripEntry._ID + " = ?",
-                    new String[]{String.valueOf(tripID)},
+                    new String[]{String.valueOf(mTripID)},
                     null);
             while (cursor.moveToNext()) {
                 tripDate = cursor.getString(cursor.getColumnIndex(AtlasContract.TripEntry.COLUMN_DATE));
@@ -180,6 +190,9 @@ public class TripViewActivity extends AppCompatActivity {
                 maxLat = cursor.getDouble(cursor.getColumnIndex(AtlasContract.TripEntry.COLUMN_MAX_LATITUDE));
                 minLong = cursor.getDouble(cursor.getColumnIndex(AtlasContract.TripEntry.COLUMN_MIN_LONGITUDE));
                 maxLong = cursor.getDouble(cursor.getColumnIndex(AtlasContract.TripEntry.COLUMN_MAX_LONGITUDE));
+                isLabelled = cursor.getInt(cursor.getColumnIndex(AtlasContract.TripEntry.COLUMN_LABELLED));
+                tripPurpose = cursor.getString(cursor.getColumnIndex(AtlasContract.TripEntry.COLUMN_TRIP_PURPOSE));
+                tripModes = cursor.getString(cursor.getColumnIndex(AtlasContract.TripEntry.COLUMN_TRIP_MODES));
             }
             // Updating trip attributes on the view
             SimpleDateFormat formatter = new SimpleDateFormat("HH:mm:ss");
@@ -202,10 +215,44 @@ public class TripViewActivity extends AppCompatActivity {
             txtTripDuration.setText(tripDuration);
             //txtTripStart.setText("Started at: " + formatter.format(new Date(tripStartTime)));
             //txtTripEnd.setText("Finished at: " + formatter.format(new Date(tripEndTime)));
+            // Showing trip purpose and modes, if the trip is labelled
+            if(isLabelled != 0) {
+                // Setting trip purpose
+                Spinner spinnerPurpose = (Spinner) findViewById(R.id.spinner_trip_purpose);
+                ArrayAdapter<CharSequence> adapterPurpose = ArrayAdapter.createFromResource(this, R.array.array_trip_purpose, android.R.layout.simple_spinner_item);
+                adapterPurpose.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                spinnerPurpose.setAdapter(adapterPurpose);
+                if (!tripPurpose.equals(null)) {
+                    int spinnerPosition = adapterPurpose.getPosition(tripPurpose);
+                    spinnerPurpose.setSelection(spinnerPosition);
+                }
+
+                //Setting trip modes
+                if(mTripModes != null)
+                    mTripModes.clear();
+                else
+                    mTripModes = new ArrayList();
+
+                String[] allTripModes = getResources().getStringArray(R.array.array_trip_modes);
+                String[] selectedTripModes = tripModes.split(",");
+
+                for (String selectedMode:selectedTripModes) {
+                    for(int inx = 0; inx < allTripModes.length; ++inx) {
+                        if(allTripModes[inx].equals(selectedMode)) {
+                            mTripModes.add(inx);
+                            break;
+                        }
+                    }
+                }
+
+                TextView txtTripModes = (TextView) findViewById(R.id.txtTripModes);
+                txtTripModes.setText("  " +
+                        tripModes.replaceAll(",", ", ") + " > Tap for change ...");
+            }
 
             // Retrieving trip's geo data from the database
             cursor = getContentResolver().query(
-                    AtlasContract.GeoEntry.buildGeoWithTripUri(tripID),
+                    AtlasContract.GeoEntry.buildGeoWithTripUri(mTripID),
                     new String[]{AtlasContract.GeoEntry._ID,
                             AtlasContract.GeoEntry.COLUMN_TIMESTAMP,
                             AtlasContract.GeoEntry.COLUMN_LATITUDE,
@@ -293,5 +340,107 @@ public class TripViewActivity extends AppCompatActivity {
         if(mMapView != null) {
             mMapView.onDestroy();
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_trip_label, menu);
+
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_label) {
+            saveTrip();
+
+            return true;
+        }
+        else if (id == android.R.id.home) {
+            onBackPressed();
+
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void saveTrip() {
+        // Checking whether both modes and purpose have been specified for the trip
+        Spinner spinnerPurpose = (Spinner) findViewById(R.id.spinner_trip_purpose);
+        long selectedPurpose = spinnerPurpose.getSelectedItemId();
+        if(selectedPurpose == 0) {
+            new AlertDialog.Builder(this)
+                    .setTitle("Trip purpose required")
+                    .setMessage("Please specify the reason for this trip.")
+                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                        }
+                    })
+                            /*.setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    // do nothing
+                                }
+                            })*/
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .show();
+
+            return;
+        }
+        if (mTripModes == null) {
+            new AlertDialog.Builder(this)
+                    .setTitle("Trip mode(s) required")
+                    .setMessage("Please specify the travel modes for this trip.")
+                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                        }
+                    })
+                            /*.setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    // do nothing
+                                }
+                            })*/
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .show();
+
+            return;
+        }
+
+        // Retrieving trip purpose and mode strings
+        String strTripPurpose = spinnerPurpose.getSelectedItem().toString();
+        String strTripModes = "";
+        String[] tripModes = getResources().getStringArray(R.array.array_trip_modes);
+        for (Object o:mTripModes) {
+            strTripModes += tripModes[Integer.valueOf(o.toString())];
+            strTripModes += ",";
+        }
+        if(!strTripModes.equals(""))
+            strTripModes = strTripModes.substring(0, strTripModes.lastIndexOf(","));
+
+        // Updating the trip labels in the database
+        if(mTripID != -1) {
+            ContentValues tripValues = new ContentValues();
+            tripValues.put(AtlasContract.TripEntry.COLUMN_TRIP_PURPOSE,
+                    strTripPurpose);
+            tripValues.put(AtlasContract.TripEntry.COLUMN_TRIP_MODES,
+                    strTripModes);
+            tripValues.put(AtlasContract.TripEntry.COLUMN_LABELLED, true);
+
+            // Update the record in the database
+            int nRows = getContentResolver().update(
+                    AtlasContract.TripEntry.CONTENT_URI,
+                    tripValues,
+                    AtlasContract.TripEntry._ID + " = ?",
+                    new String[]{String.valueOf(mTripID)});
+        }
+
+        finish();
     }
 }

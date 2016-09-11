@@ -32,6 +32,7 @@ public class AtlasContract {
     // looking at trip data. content://au.edu.uq.civil.wander/givemeroot/ will fail,
     // as the ContentProvider hasn't been given any information on what to do with "givemeroot".
     public static final String PATH_TRIP = "trip";
+    public static final String PATH_TRIP_ALL = "trips"; // TODO: Merge with PATH_TRIP
     public static final String PATH_GEODATA = "geo";
 
     // To make it easy to query for the exact date, we normalise all dates that go into
@@ -105,6 +106,10 @@ public class AtlasContract {
             return CONTENT_URI.buildUpon().appendPath(date).build();
         }
 
+        public static Uri buildTripsUri() {
+            return BASE_CONTENT_URI.buildUpon().appendPath(PATH_TRIP_ALL).build();
+        }
+
         public static String getDateFromUri(Uri uri) {
             String date = uri.getPathSegments().get(1);
             // Adding '/' between date parts
@@ -114,7 +119,7 @@ public class AtlasContract {
         }
 
         // Defining table name
-        public static final String TABLE_NAME = "trip";
+        public static final String TABLE_NAME = "HTS_Trip";
 
         // Defining table columns
         public static final String COLUMN_DATE = "date";
@@ -129,37 +134,7 @@ public class AtlasContract {
         public static final String COLUMN_MAX_LATITUDE = "maxLatitude";
         public static final String COLUMN_MIN_LONGITUDE = "minLongitude";
         public static final String COLUMN_MAX_LONGITUDE = "maxLongitude";
-
-        // TODO: Complete the rest of the class
-        // TODO: Table joins should be defined
-        /*
-        public static Uri buildWeatherLocation(String locationSetting) {
-            return CONTENT_URI.buildUpon().appendPath(locationSetting).build();
-        }
-
-        public static Uri buildWeatherLocationWithStartDate(
-                String locationSetting, long startDate) {
-            long normalizedDate = normalizeDate(startDate);
-            return CONTENT_URI.buildUpon().appendPath(locationSetting)
-                    .appendQueryParameter(COLUMN_DATE, Long.toString(normalizedDate)).build();
-        }
-
-        public static Uri buildWeatherLocationWithDate(String locationSetting, long date) {
-            return CONTENT_URI.buildUpon().appendPath(locationSetting)
-                    .appendPath(Long.toString(normalizeDate(date))).build();
-        }
-
-        public static long getDateFromUri(Uri uri) {
-            return Long.parseLong(uri.getPathSegments().get(2));
-        }
-
-        public static long getStartDateFromUri(Uri uri) {
-            String dateString = uri.getQueryParameter(COLUMN_DATE);
-            if (null != dateString && dateString.length() > 0)
-                return Long.parseLong(dateString);
-            else
-                return 0;
-        }
-        */
+        public static final String COLUMN_TRIP_PURPOSE = "description";
+        public static final String COLUMN_TRIP_MODES = "transport_modes";
     }
 }

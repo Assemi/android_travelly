@@ -10,11 +10,11 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="au.edu.uq.civil.atlasii.SurveyListActivity"
-    tools:showIn="@layout/activity_survey_list">
+    tools:context="au.edu.uq.civil.atlasii.SurveyActivity"
+    tools:showIn="@layout/activity_survey">
 
     <!-- Survey picker -->
-    <TextView
+    <!--TextView
         android:layout_marginTop="10dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -42,6 +42,6 @@
     <TextView
         android:id="@+id/textview_test"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content" /-->
 
 </LinearLayout>

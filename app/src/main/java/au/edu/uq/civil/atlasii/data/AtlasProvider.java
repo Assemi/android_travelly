@@ -23,6 +23,7 @@ public class AtlasProvider extends ContentProvider {
     static final int GEODATA_WITH_TRIP = 101;
     static final int TRIP = 200;
     static final int TRIP_WITH_DATE = 201;
+    static final int TRIPS = 300; //TODO: merge with TRIP
 
     private static final SQLiteQueryBuilder sTripQueryBuilder;
     private static final SQLiteQueryBuilder sGeoDataQueryBuilder;
@@ -118,6 +119,19 @@ public class AtlasProvider extends ContentProvider {
         );
     }
 
+    private Cursor getTripsData(
+            Uri uri, String[] projection, String selection, String[] selectionArgs,
+            String sortOrder) {
+        return sTripQueryBuilder.query(mOpenHelper.getReadableDatabase(),
+                projection,
+                selection,
+                selectionArgs,
+                null,
+                null,
+                sortOrder
+        );
+    }
+
     private Cursor getTripDataForDate(
             Uri uri, String[] projection, String selection, String[] selectionArgs,
             String sortOrder) {
@@ -181,6 +195,7 @@ public class AtlasProvider extends ContentProvider {
         matcher.addURI(authority, AtlasContract.PATH_GEODATA + "/#", GEODATA_WITH_TRIP);
         matcher.addURI(authority, AtlasContract.PATH_TRIP, TRIP);
         matcher.addURI(authority, AtlasContract.PATH_TRIP + "/*", TRIP_WITH_DATE);
+        matcher.addURI(authority, AtlasContract.PATH_TRIP_ALL, TRIPS);
 
         return matcher;
     }
@@ -240,6 +255,11 @@ public class AtlasProvider extends ContentProvider {
             // "trip/*"
             case TRIP_WITH_DATE: {
                 retCursor = getTripDataForDate(uri, projection, selection, selectionArgs, sortOrder);
+                break;
+            }
+            // "trips"
+            case TRIPS: {
+                retCursor = getTripsData(uri, projection, selection, selectionArgs, sortOrder);
                 break;
             }
 

@@ -16,6 +16,7 @@ import android.database.Cursor;
 import android.graphics.Color;
 import android.location.Location;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -47,6 +48,7 @@ import android.widget.Button;
 import android.widget.CursorAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -66,7 +68,25 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.UUID;
+import java.util.zip.GZIPOutputStream;
 
 import au.edu.uq.civil.atlasii.data.AtlasContract;
 
@@ -381,25 +401,6 @@ public class AtlasII extends AppCompatActivity implements
             }
         }*/
 
-        // TODO: Update this section- remove if not used anymore
-        // Checking the current state of the location settings
-        //PendingResult<LocationSettingsResult> result =
-        //        LocationServices.SettingsApi.checkLocationSettings(mGoogleApiClient,
-        //                builder.build());
-
-        // Creating a log file
-        /*try {
-            logFile = openFileOutput("ATLAS_Log.log", Context.MODE_APPEND);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }*/
-
-        // Request location updates
-        //if (mRequestingLocationUpdates) {
-        /*if (true) {
-            startLocationUpdates();
-        }*/
-
         Intent intent = new Intent(this, LocationReceiver.class);
         PendingIntent locationIntent = PendingIntent.getBroadcast(getApplicationContext(), 14872, intent, PendingIntent.FLAG_CANCEL_CURRENT);
         // Creating a location request
@@ -462,22 +463,95 @@ public class AtlasII extends AppCompatActivity implements
             final Bundle extras = new Bundle();
             final Activity atlasActivity = getActivity();
             if(atlasActivity != null) {
-                final ListView listViewToUploadTrips = (ListView) atlasActivity.findViewById(R.id.listView_ToUploadTrips);
+                CursorAdapter cursorAdapter;
+                final ListView listViewUnlabelledTrips = (ListView) atlasActivity.findViewById(R.id.listView_UnlabelledTrips);
+                final ListView listViewLabelledTrips = (ListView) atlasActivity.findViewById(R.id.listView_LabelledTrips);
 
-                if (listViewToUploadTrips != null) {
-                    // Extracting trips to upload
-                    Cursor cursorToUploadTrips = getContext().getContentResolver().query(
+                if (listViewUnlabelledTrips != null) {
+                    // Extracting unlabelled trips
+                    Cursor cursorUnlabelledTrips = getContext().getContentResolver().query(
                             AtlasContract.TripEntry.CONTENT_URI,
                             new String[]{AtlasContract.TripEntry._ID,
                                     "count(" + AtlasContract.TripEntry.COLUMN_DATE + ")",
                                     AtlasContract.TripEntry.COLUMN_DATE},
                             AtlasContract.TripEntry.COLUMN_ACTIVE + " = ? and " +
+                                    AtlasContract.TripEntry.COLUMN_LABELLED + " = ? and " +
                                     AtlasContract.TripEntry.COLUMN_EXPORTED + " = ?",
-                            new String[]{"0", "0"},
+                            new String[]{"0", "0", "0"},
                             AtlasContract.TripEntry.COLUMN_DATE + " ASC");
-                    CursorAdapter cursorAdapter = new CursorAdapter(
+                    cursorAdapter = new CursorAdapter(
                             getContext(),
-                            cursorToUploadTrips,
+                            cursorUnlabelledTrips,
+                            0) {
+                        @Override
+                        public View newView(Context context, Cursor cursor, ViewGroup parent) {
+                            return LayoutInflater.from(context).inflate(
+                                    R.layout.listitem_trip, parent, false);
+                        }
+
+                        @Override
+                        public void bindView(View view, Context context, Cursor cursor) {
+                            TextView textViewTrip = (TextView) view.findViewById(R.id.textview_trip);
+                            TextView textViewTripCount = (TextView) view.findViewById(R.id.textview_tripcount);
+
+                            // Set the unlabelled trips' icon
+                            ImageView imageView = (ImageView) view.findViewById(R.id.icon_trip);
+                            imageView.setImageResource(R.drawable.ic_question);
+                            /*TimeZone timeZone = Calendar.getInstance().getTimeZone();
+                            SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+                            formatter.setTimeZone(timeZone);*/
+                            String strTripDate = cursor.getString(cursor.getColumnIndexOrThrow(
+                                    AtlasContract.TripEntry.COLUMN_DATE));
+                            int tripCount = cursor.getInt(
+                                    cursor.getColumnIndexOrThrow("count(" + AtlasContract.TripEntry.COLUMN_DATE + ")"));
+                            //String tripDate = formatter.format(new Date(Long.parseLong(strTripDate)));
+                            //textViewTrip.setText(tripDate);
+                            textViewTrip.setText(strTripDate);
+                            textViewTripCount.setText(tripCount + " trip(s)");
+
+                            // Specify click action for the listview items
+                            listViewUnlabelledTrips.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                                // Redirecting to trip details page
+                                @Override
+                                public void onItemClick(AdapterView<?> parent, View view, int position,
+                                                        long id) {
+                                    Intent intent = new Intent(getContext(), TripsActivity.class);
+                                    // Extract selected trips' date
+                                    String tripsDate = (String) ((TextView) view.
+                                            findViewById(R.id.textview_trip))
+                                            .getText();
+                                    extras.putBoolean(getContext().getString(
+                                            R.string.intent_msg_trips_labelled),
+                                            false);
+                                    extras.putString(getContext().getString(
+                                            R.string.intent_msg_trips_date),
+                                            tripsDate);
+                                    intent.putExtras(extras);
+                                    startActivity(intent);
+                                }
+                            });
+                        }
+                    };
+
+                    // Attach cursor adapter to the ListView
+                    listViewUnlabelledTrips.setAdapter(cursorAdapter);
+                }
+
+                if(listViewLabelledTrips != null) {
+                    // Extracting labelled trips
+                    Cursor cursorLabelledTrips = getContext().getContentResolver().query(
+                            AtlasContract.TripEntry.CONTENT_URI,
+                            new String[]{AtlasContract.TripEntry._ID,
+                                    "count(" + AtlasContract.TripEntry.COLUMN_DATE + ")",
+                                    AtlasContract.TripEntry.COLUMN_DATE},
+                            AtlasContract.TripEntry.COLUMN_ACTIVE + " = ? and " +
+                                    AtlasContract.TripEntry.COLUMN_LABELLED + " != ? and " +
+                                    AtlasContract.TripEntry.COLUMN_EXPORTED + " = ?",
+                            new String[]{"0", "0", "0"},
+                            AtlasContract.TripEntry.COLUMN_DATE + " ASC");
+                    cursorAdapter = new CursorAdapter(
+                            getContext(),
+                            cursorLabelledTrips,
                             0) {
                         @Override
                         public View newView(Context context, Cursor cursor, ViewGroup parent) {
@@ -493,9 +567,6 @@ public class AtlasII extends AppCompatActivity implements
                             // Set the labelled trips' icon
                             ImageView imageView = (ImageView) view.findViewById(R.id.icon_trip);
                             imageView.setImageResource(R.drawable.ic_to_upload);
-                                    /*TimeZone timeZone = Calendar.getInstance().getTimeZone();
-                                    SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-                                    formatter.setTimeZone(timeZone);*/
                             String strTripDate = cursor.getString(cursor.getColumnIndexOrThrow(
                                     AtlasContract.TripEntry.COLUMN_DATE));
                             int tripCount = cursor.getInt(
@@ -506,7 +577,7 @@ public class AtlasII extends AppCompatActivity implements
                             textViewTripCount.setText(tripCount + " trip(s)");
 
                             // Specify click action for the listview items
-                            listViewToUploadTrips.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                            listViewLabelledTrips.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                                 // Redirecting to trip details page
                                 @Override
                                 public void onItemClick(AdapterView<?> parent, View view, int position,
@@ -517,8 +588,8 @@ public class AtlasII extends AppCompatActivity implements
                                             findViewById(R.id.textview_trip))
                                             .getText();
                                     extras.putBoolean(getContext().getString(
-                                            R.string.intent_msg_trips_exported),
-                                            false);
+                                            R.string.intent_msg_trips_labelled),
+                                            true);
                                     extras.putString(getContext().getString(
                                             R.string.intent_msg_trips_date),
                                             tripsDate);
@@ -530,7 +601,7 @@ public class AtlasII extends AppCompatActivity implements
                     };
 
                     // Attach cursor adapter to the ListView
-                    listViewToUploadTrips.setAdapter(cursorAdapter);
+                    listViewLabelledTrips.setAdapter(cursorAdapter);
                 }
             }
         }
@@ -551,6 +622,7 @@ public class AtlasII extends AppCompatActivity implements
         private static final int GEO_LOADER = 0;
 
         public PlaceholderFragment() {
+            mTripsToUpload = new ArrayList<Long>();
         }
 
         /**
@@ -631,8 +703,17 @@ public class AtlasII extends AppCompatActivity implements
                 case 2: // History tab
                     final Bundle extras = new Bundle();
                     rootView = inflater.inflate(R.layout.atlas_history_page, container, false);
-                    //final ListView listViewUploadedTrips = (ListView) rootView.findViewById(R.id.listView_UploadedTrips);
-                    final ListView listViewToUploadTrips = (ListView) rootView.findViewById(R.id.listView_ToUploadTrips);
+                    final ListView listViewUnlabelledTrips = (ListView) rootView.findViewById(R.id.listView_UnlabelledTrips);
+                    final ListView listViewLabelledTrips = (ListView) rootView.findViewById(R.id.listView_LabelledTrips);
+
+                    // Upload Trips button:
+                    Button uploadTripsButton = (Button) rootView.findViewById(R.id.btn_uploadTrips);
+                    uploadTripsButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            uploadTrips();
+                        }
+                    });
 
                     // Adding content observer to update the trips list, when the list changes in the DB
                     getContext().getContentResolver().registerContentObserver(
@@ -641,19 +722,89 @@ public class AtlasII extends AppCompatActivity implements
                             new TripObserver(new Handler(), getContext()));
 
                     // TODO: Add comments
-                    // Extracting trips to upload
-                    Cursor cursorToUploadTrips = getContext().getContentResolver().query(
+                    // Extracting unlabelled trips
+                    Cursor cursorUnlabelledTrips = getContext().getContentResolver().query(
                             AtlasContract.TripEntry.CONTENT_URI,
                             new String[]{AtlasContract.TripEntry._ID,
                                     "count(" + AtlasContract.TripEntry.COLUMN_DATE + ")",
                                     AtlasContract.TripEntry.COLUMN_DATE},
-                            AtlasContract.TripEntry.COLUMN_ACTIVE + " = ? and " +
+                                    AtlasContract.TripEntry.COLUMN_ACTIVE + " = ? and " +
+                                    AtlasContract.TripEntry.COLUMN_LABELLED + " = ? and " +
                                     AtlasContract.TripEntry.COLUMN_EXPORTED + " = ?",
-                            new String[]{"0", "0"},
+                            new String[]{"0", "0", "0"},
                             AtlasContract.TripEntry.COLUMN_DATE + " ASC");
                     CursorAdapter cursorAdapter = new CursorAdapter(
                             getContext(),
-                            cursorToUploadTrips,
+                            cursorUnlabelledTrips,
+                            0) {
+                        @Override
+                        public View newView(Context context, Cursor cursor, ViewGroup parent) {
+                            return LayoutInflater.from(context).inflate(
+                                    R.layout.listitem_trip, parent, false);
+                        }
+
+                        @Override
+                        public void bindView(View view, Context context, Cursor cursor) {
+                            TextView textViewTrip = (TextView) view.findViewById(R.id.textview_trip);
+                            TextView textViewTripCount = (TextView) view.findViewById(R.id.textview_tripcount);
+
+                            // Set the unlabelled trips' icon
+                            ImageView imageView = (ImageView) view.findViewById(R.id.icon_trip);
+                            imageView.setImageResource(R.drawable.ic_question);
+                            /*TimeZone timeZone = Calendar.getInstance().getTimeZone();
+                            SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+                            formatter.setTimeZone(timeZone);*/
+                            String strTripDate = cursor.getString(cursor.getColumnIndexOrThrow(
+                                    AtlasContract.TripEntry.COLUMN_DATE));
+                            int tripCount = cursor.getInt(
+                                    cursor.getColumnIndexOrThrow("count(" + AtlasContract.TripEntry.COLUMN_DATE + ")"));
+                            //String tripDate = formatter.format(new Date(Long.parseLong(strTripDate)));
+                            //textViewTrip.setText(tripDate);
+                            textViewTrip.setText(strTripDate);
+                            textViewTripCount.setText(tripCount + " trip(s)");
+
+                            // Specify click action for the listview items
+                            listViewUnlabelledTrips.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                                // Redirecting to trip details page
+                                @Override
+                                public void onItemClick(AdapterView<?> parent, View view, int position,
+                                                        long id) {
+                                    Intent intent = new Intent(getContext(), TripsActivity.class);
+                                    // Extract selected trips' date
+                                    String tripsDate = (String) ((TextView) view.
+                                            findViewById(R.id.textview_trip))
+                                            .getText();
+                                    extras.putBoolean(getContext().getString(
+                                            R.string.intent_msg_trips_labelled),
+                                            false);
+                                    extras.putString(getContext().getString(
+                                            R.string.intent_msg_trips_date),
+                                            tripsDate);
+                                    intent.putExtras(extras);
+                                    startActivity(intent);
+                                }
+                            });
+                        }
+                    };
+
+                    // Attach cursor adapter to the ListView
+                    listViewUnlabelledTrips.setAdapter(cursorAdapter);
+
+
+                    // Extracting labelled trips
+                    Cursor cursorLabelledTrips = getContext().getContentResolver().query(
+                            AtlasContract.TripEntry.CONTENT_URI,
+                            new String[]{AtlasContract.TripEntry._ID,
+                                    "count(" + AtlasContract.TripEntry.COLUMN_DATE + ")",
+                                    AtlasContract.TripEntry.COLUMN_DATE},
+                                    AtlasContract.TripEntry.COLUMN_ACTIVE + " = ? and " +
+                                    AtlasContract.TripEntry.COLUMN_LABELLED + " != ? and " +
+                                    AtlasContract.TripEntry.COLUMN_EXPORTED + " = ?",
+                            new String[]{"0", "0", "0"},
+                            AtlasContract.TripEntry.COLUMN_DATE + " ASC");
+                    cursorAdapter = new CursorAdapter(
+                            getContext(),
+                            cursorLabelledTrips,
                             0) {
                         @Override
                         public View newView(Context context, Cursor cursor, ViewGroup parent) {
@@ -669,9 +820,6 @@ public class AtlasII extends AppCompatActivity implements
                             // Set the labelled trips' icon
                             ImageView imageView = (ImageView) view.findViewById(R.id.icon_trip);
                             imageView.setImageResource(R.drawable.ic_to_upload);
-                            /*TimeZone timeZone = Calendar.getInstance().getTimeZone();
-                            SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-                            formatter.setTimeZone(timeZone);*/
                             String strTripDate = cursor.getString(cursor.getColumnIndexOrThrow(
                                     AtlasContract.TripEntry.COLUMN_DATE));
                             int tripCount = cursor.getInt(
@@ -682,7 +830,7 @@ public class AtlasII extends AppCompatActivity implements
                             textViewTripCount.setText(tripCount + " trip(s)");
 
                             // Specify click action for the listview items
-                            listViewToUploadTrips.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                            listViewLabelledTrips.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                                 // Redirecting to trip details page
                                 @Override
                                 public void onItemClick(AdapterView<?> parent, View view, int position,
@@ -693,72 +841,7 @@ public class AtlasII extends AppCompatActivity implements
                                             findViewById(R.id.textview_trip))
                                             .getText();
                                     extras.putBoolean(getContext().getString(
-                                            R.string.intent_msg_trips_exported),
-                                            false);
-                                    extras.putString(getContext().getString(
-                                            R.string.intent_msg_trips_date),
-                                            tripsDate);
-                                    intent.putExtras(extras);
-                                    startActivity(intent);
-                                }
-                            });
-                        }
-                    };
-
-                    // Attach cursor adapter to the ListView
-                    listViewToUploadTrips.setAdapter(cursorAdapter);
-
-
-                    /*// Extracting uploaded trips
-                    Cursor cursorUploadedTrips = getContext().getContentResolver().query(
-                            AtlasContract.TripEntry.CONTENT_URI,
-                            new String[]{AtlasContract.TripEntry._ID,
-                                    "count(" + AtlasContract.TripEntry.COLUMN_DATE + ")",
-                                    AtlasContract.TripEntry.COLUMN_DATE},
-                            AtlasContract.TripEntry.COLUMN_ACTIVE + " = ? and " +
-                                    AtlasContract.TripEntry.COLUMN_EXPORTED + " != ?",
-                            new String[]{"0", "0"},
-                            AtlasContract.TripEntry.COLUMN_DATE + " ASC");
-                    cursorAdapter = new CursorAdapter(
-                            getContext(),
-                            cursorUploadedTrips,
-                            0) {
-                        @Override
-                        public View newView(Context context, Cursor cursor, ViewGroup parent) {
-                            return LayoutInflater.from(context).inflate(
-                                    R.layout.listitem_trip, parent, false);
-                        }
-
-                        @Override
-                        public void bindView(View view, Context context, Cursor cursor) {
-                            TextView textViewTrip = (TextView) view.findViewById(R.id.textview_trip);
-                            TextView textViewTripCount = (TextView) view.findViewById(R.id.textview_tripcount);
-
-                            // Set the labelled trips' icon
-                            ImageView imageView = (ImageView) view.findViewById(R.id.icon_trip);
-                            imageView.setImageResource(R.drawable.ic_done);
-                            String strTripDate = cursor.getString(cursor.getColumnIndexOrThrow(
-                                    AtlasContract.TripEntry.COLUMN_DATE));
-                            int tripCount = cursor.getInt(
-                                    cursor.getColumnIndexOrThrow("count(" + AtlasContract.TripEntry.COLUMN_DATE + ")"));
-                            //String tripDate = formatter.format(new Date(Long.parseLong(strTripDate)));
-                            //textViewTrip.setText(tripDate);
-                            textViewTrip.setText(strTripDate);
-                            textViewTripCount.setText(tripCount + " trip(s)");
-
-                            // Specify click action for the listview items
-                            listViewUploadedTrips.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                                // Redirecting to trip details page
-                                @Override
-                                public void onItemClick(AdapterView<?> parent, View view, int position,
-                                                        long id) {
-                                    Intent intent = new Intent(getContext(), TripsActivity.class);
-                                    // Extract selected trips' date
-                                    String tripsDate = (String) ((TextView) view.
-                                            findViewById(R.id.textview_trip))
-                                            .getText();
-                                    extras.putBoolean(getContext().getString(
-                                            R.string.intent_msg_trips_exported),
+                                            R.string.intent_msg_trips_labelled),
                                             true);
                                     extras.putString(getContext().getString(
                                             R.string.intent_msg_trips_date),
@@ -771,7 +854,7 @@ public class AtlasII extends AppCompatActivity implements
                     };
 
                     // Attach cursor adapter to the ListView
-                    listViewUploadedTrips.setAdapter(cursorAdapter);*/
+                    listViewLabelledTrips.setAdapter(cursorAdapter);
 
                     /*ViewGroup.LayoutParams params = listViewUploadedTrips.getLayoutParams();
                     params.height = 500;
@@ -999,6 +1082,427 @@ public class AtlasII extends AppCompatActivity implements
         @Override
         public void onLoaderReset(Loader<Cursor> loader) {
             // TODO: Complete this method
+        }
+
+        private static TripsUploadTask mUploadTask = null;
+        ArrayList<Long> mTripsToUpload = null;
+        private void uploadTrips() {
+            if (mUploadTask != null) {
+                return;
+            }
+
+            // Retrieving the username from the shared preferences
+            SharedPreferences settings = getActivity().getSharedPreferences(getActivity().getApplicationContext().getString(R.string.shared_preferences), 0);
+            String username = settings.getString("Username", "");
+
+            // Extracting trip ids to upload
+            Cursor cursorLabelledTrips = getActivity().getContentResolver().query(
+                    AtlasContract.TripEntry.buildTripsUri(),
+                    new String[]{AtlasContract.TripEntry._ID},
+                    AtlasContract.TripEntry.COLUMN_ACTIVE + " = ? and " +
+                    AtlasContract.TripEntry.COLUMN_LABELLED + " != ? and " +
+                    AtlasContract.TripEntry.COLUMN_EXPORTED + " = ?",
+                    new String[]{"0", "0", "0"},
+                    AtlasContract.TripEntry.COLUMN_START_TIME + " ASC");
+            if (cursorLabelledTrips != null) {
+                cursorLabelledTrips.moveToFirst();
+                do {
+                    long tripID = cursorLabelledTrips.getLong(cursorLabelledTrips.getColumnIndex(AtlasContract.TripEntry._ID));
+                    mTripsToUpload.add(tripID);
+                } while (cursorLabelledTrips.moveToNext());
+            }
+            else {
+                // Error message
+                new AlertDialog.Builder(getActivity())
+                        .setTitle("No Labelled Trip(s)")
+                        .setMessage("There is no labelled trips to upload.")
+                        .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                            }
+                        })
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .show();
+            }
+
+            // Kick off a background task to perform the survey submit attempt.
+            mUploadTask = new TripsUploadTask(username, mTripsToUpload);
+            mUploadTask.execute((Void) null);
+        }
+
+        /**
+         * Upload progress
+         */
+        private ProgressBar mPrgsUpload;
+        private Button mBtnUpload;
+
+        /**
+         * Represents an asynchronous task used to upload trips to the server.
+         */
+        public class TripsUploadTask extends AsyncTask<Void, Integer, Boolean> {
+
+            private String mUsername;
+            private ArrayList<Long> mLocalTrips = null;
+            private ArrayList<Long> mToUpdateTrips = null;
+            private String mResult = "";
+            private boolean mError = false;
+
+            TripsUploadTask(String username, ArrayList<Long> trips) {
+                mUsername = username;
+                mLocalTrips = new ArrayList<Long>();
+                mToUpdateTrips = new ArrayList<Long>();
+
+                for (Long t:trips) {
+                    mLocalTrips.add(t);
+                }
+            }
+
+            @Override
+            protected void onPreExecute() {
+                super.onPreExecute();
+                mPrgsUpload = (ProgressBar) getActivity().findViewById(R.id.prgs_upload);
+                mBtnUpload = (Button) getActivity().findViewById(R.id.btn_uploadTrips);
+                mPrgsUpload.setVisibility(ProgressBar.VISIBLE);
+                mBtnUpload.setClickable(false);
+                //"The upload is in progress ..."
+                mPrgsUpload.setProgress(0);
+            }
+
+            @Override
+            protected Boolean doInBackground(Void... params) {
+                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z");
+                JSONObject tripData;
+                boolean result = true;
+                int inx = 0;
+
+                // Attempt uploading trips through a network service.
+                try {
+                    for (Long tripID: mLocalTrips) {
+                        ++inx;
+
+                        // Creating a JSON object to store trips' data
+                        tripData = new JSONObject();
+
+                        // Retrieving the trip's GEO data from the database
+                        Cursor cursor = getActivity().getContentResolver().query(
+                                AtlasContract.GeoEntry.buildGeoWithTripUri(tripID),
+                                new String[]{AtlasContract.GeoEntry._ID,
+                                        AtlasContract.GeoEntry.COLUMN_HEADING,
+                                        AtlasContract.GeoEntry.COLUMN_TIMESTAMP,
+                                        AtlasContract.GeoEntry.COLUMN_LATITUDE,
+                                        AtlasContract.GeoEntry.COLUMN_LONGITUDE,
+                                        AtlasContract.GeoEntry.COLUMN_ACCURACY,
+                                        AtlasContract.GeoEntry.COLUMN_SPEED},
+                                null,
+                                null,
+                                AtlasContract.GeoEntry.COLUMN_TIMESTAMP + " ASC");
+
+                        // Creating a JSON array of GEO samples
+                        JSONArray jsonArrSamples = new JSONArray();
+                        while (cursor.moveToNext()) {
+                            JSONObject sampleObj = new JSONObject();
+                            try {
+                                sampleObj.put("heading", cursor.getFloat(
+                                        cursor.getColumnIndex(AtlasContract.GeoEntry.COLUMN_HEADING)));
+                                sampleObj.put("timestamp", formatter.format(new Date(
+                                        cursor.getLong(
+                                                cursor.getColumnIndex(AtlasContract.GeoEntry.COLUMN_TIMESTAMP)))));
+                                sampleObj.put("latitude", cursor.getDouble(
+                                        cursor.getColumnIndex(AtlasContract.GeoEntry.COLUMN_LATITUDE)));
+                                sampleObj.put("longitude", cursor.getDouble(
+                                        cursor.getColumnIndex(AtlasContract.GeoEntry.COLUMN_LONGITUDE)));
+                                sampleObj.put("location_accuracy", cursor.getFloat(
+                                        cursor.getColumnIndex(AtlasContract.GeoEntry.COLUMN_ACCURACY)));
+                                sampleObj.put("speed", cursor.getFloat(
+                                        cursor.getColumnIndex(AtlasContract.GeoEntry.COLUMN_SPEED)));
+                                jsonArrSamples.put(sampleObj);
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+
+                        // Retrieving the trip's data
+                        cursor = getActivity().getContentResolver().query(
+                                AtlasContract.TripEntry.CONTENT_URI,
+                                new String[]{AtlasContract.TripEntry._ID,
+                                        AtlasContract.TripEntry.COLUMN_TRIP_ATTRIBUTES,
+                                        AtlasContract.TripEntry.COLUMN_DATE,
+                                        AtlasContract.TripEntry.COLUMN_START_TIME,
+                                        AtlasContract.TripEntry.COLUMN_END_TIME,
+                                        AtlasContract.TripEntry.COLUMN_MIN_LATITUDE,
+                                        AtlasContract.TripEntry.COLUMN_MAX_LATITUDE,
+                                        AtlasContract.TripEntry.COLUMN_MIN_LONGITUDE,
+                                        AtlasContract.TripEntry.COLUMN_MAX_LONGITUDE,
+                                        AtlasContract.TripEntry.COLUMN_DISTANCE,
+                                        AtlasContract.TripEntry.COLUMN_TRIP_PURPOSE,
+                                        AtlasContract.TripEntry.COLUMN_TRIP_MODES},
+                                AtlasContract.TripEntry._ID + " = ?",
+                                new String[]{String.valueOf(tripID)},
+                                AtlasContract.TripEntry.COLUMN_DATE + " ASC");
+
+                        // Creating a JSON object of trip data
+                        JSONObject jsonObjTrip = new JSONObject();
+                        while (cursor.moveToNext()) {
+                            try {
+                                jsonObjTrip.put("description", cursor.getString(
+                                        cursor.getColumnIndex(AtlasContract.TripEntry.COLUMN_TRIP_PURPOSE)));
+                                //jsonObjTrip.put("tripAttrs", "");
+                                jsonObjTrip.put("date", formatter.format(new Date(
+                                        cursor.getLong(
+                                                cursor.getColumnIndex(AtlasContract.TripEntry.COLUMN_START_TIME)))));
+                                jsonObjTrip.put("start_time", formatter.format(new Date(
+                                        cursor.getLong(
+                                                cursor.getColumnIndex(AtlasContract.TripEntry.COLUMN_START_TIME)))));
+                                jsonObjTrip.put("end_time", formatter.format(new Date(
+                                        cursor.getLong(
+                                                cursor.getColumnIndex(AtlasContract.TripEntry.COLUMN_END_TIME)))));
+                                jsonObjTrip.put("minLatitude", cursor.getDouble(
+                                        cursor.getColumnIndex(AtlasContract.TripEntry.COLUMN_MIN_LATITUDE)));
+                                jsonObjTrip.put("maxLatitude", cursor.getDouble(
+                                        cursor.getColumnIndex(AtlasContract.TripEntry.COLUMN_MAX_LATITUDE)));
+                                jsonObjTrip.put("minLongitude", cursor.getDouble(
+                                        cursor.getColumnIndex(AtlasContract.TripEntry.COLUMN_MIN_LONGITUDE)));
+                                jsonObjTrip.put("maxLongitude", cursor.getDouble(
+                                        cursor.getColumnIndex(AtlasContract.TripEntry.COLUMN_MAX_LONGITUDE)));
+                                jsonObjTrip.put("distance", cursor.getFloat(
+                                        cursor.getColumnIndex(AtlasContract.TripEntry.COLUMN_DISTANCE)));
+                                jsonObjTrip.put("survey_id", "0");
+                                // Creating a JSON array of transport modes
+                                JSONArray jsonArrModes = new JSONArray();
+                                String[] tripModes = cursor.getString(
+                                        cursor.getColumnIndex(AtlasContract.TripEntry.COLUMN_TRIP_MODES)).split(",");
+                                for (String tMode:tripModes) {
+                                    jsonArrModes.put(tMode);
+                                }
+                                jsonObjTrip.put("transport_modes", jsonArrModes);
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+
+                        // Creating the complete trip data object
+                        JSONObject jsonObjectTrips = new JSONObject();
+                        try {
+                            jsonObjectTrips.put("samples", jsonArrSamples);
+                            jsonObjectTrips.put("trip", jsonObjTrip);
+                            tripData.put("trips", jsonObjectTrips);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                        result &= uploadTripData(tripID, tripData);
+
+                        // The logic to calculate progress
+                        publishProgress((int)(inx * 100 / mLocalTrips.size()));
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                return result;
+            }
+
+            // This method send trips' data to the server
+            private boolean uploadTripData(Long trip, JSONObject tripData) throws IOException {
+                int errorCount = 0;
+                boolean result = true;
+                String uid = UUID.randomUUID().toString();
+                final int chunkSize = 1000;
+                // Dividing the trip data into small chunks
+                String strContentFull = tripData.toString().replace("\"", "");
+                int totalChunks = (int)((strContentFull.length() - 1) / chunkSize);
+                for(int chunkNo = 0; chunkNo <= totalChunks; ++chunkNo) {
+                    InputStream inputStream = null;
+                    String strContent = "uid=" + uid +
+                            "&pnum=" + String.valueOf(chunkNo + 1) +
+                            "&total=" + String.valueOf(totalChunks + 1) +
+                            "&username=" + mUsername +
+                            "&content=" + strContentFull.substring(chunkNo * chunkSize, Math.min((chunkNo + 1) * chunkSize, strContentFull.length()));
+
+                    byte[] compressedContent = compress(strContent);
+
+                    try {
+                        // Creating request URL
+                        Uri.Builder builder = new Uri.Builder();
+                        builder.scheme("http")
+                                .authority(getString(R.string.atlas_server_url))
+                                .appendPath(getString(R.string.path_submit_trip_data));
+                        URL url = new URL(builder.build().toString());
+
+                        // Requesting the server
+                        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                        conn.setReadTimeout(60000 /* milliseconds */);
+                        conn.setConnectTimeout(60000 /* milliseconds */);
+                        conn.setRequestMethod("POST");
+                        //conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+                        conn.setRequestProperty("Content-Encoding", "gzip");
+                        conn.setRequestProperty("Content-Length", Integer.toString(compressedContent.length));
+                        //conn.setRequestProperty("Content-Language", "en-US");
+                        conn.setUseCaches(false);
+                        conn.setDoInput(true);
+                        conn.setDoOutput(true);
+
+                        //Send request
+                        DataOutputStream wr = new DataOutputStream(
+                                conn.getOutputStream());
+                        wr.write(compressedContent);
+                        wr.flush();
+                        wr.close();
+
+                        // Starting the query
+                        conn.connect();
+                        int response = conn.getResponseCode();
+
+                        // Checking whether the results are fine
+                        if (response == 200) {
+                            inputStream = conn.getInputStream();
+                            // Convert the InputStream into a string
+                            mResult = readIt(inputStream);
+
+                            int inx = mResult.indexOf("?uid=");
+                            // All parts have been correctly received by the server
+                            if(inx > 0) {
+                                int endInx = mResult.indexOf("\n", inx + 1);
+                                String receivedUid = mResult.substring(inx + 6, endInx - 1);
+
+                                if (receivedUid.equals(uid)) {
+                                    mToUpdateTrips.add(trip);
+                                }
+                            }
+                        }
+                        else {
+                            result = false;
+                            InputStream errorStream = conn.getErrorStream();
+                            if (errorStream != null) {
+                                String strError = readIt(errorStream);
+                                errorStream.close();
+                            }
+                            ++errorCount;
+                            --chunkNo;
+                        }
+
+                        conn.disconnect();
+
+                        // TODO: Change- Errors should be managed and appropriate messages should be shown
+                        if(errorCount > 5) {
+                            mError = true;
+                            break;
+                        }
+                        // Makes sure that the InputStream is closed after the app is
+                        // finished using it.
+                    }
+                    catch (IOException e) {
+                        mError = true;
+                        break;
+                    }
+                    finally {
+                        if (inputStream != null) {
+                            inputStream.close();
+                        }
+                    }
+                }
+
+                return result;
+            }
+
+            // Reads an InputStream and converts it to a String
+            public String readIt(InputStream stream) throws IOException, UnsupportedEncodingException {
+                BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+                StringBuilder sb = new StringBuilder();
+
+                String line = null;
+                try {
+                    while ((line = reader.readLine()) != null) {
+                        sb.append(line).append('\n');
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } finally {
+                    try {
+                        stream.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                return sb.toString();
+            }
+
+            @Override
+            protected void onProgressUpdate(Integer... progress) {
+                mPrgsUpload.setProgress(progress[0]);
+            }
+
+            @Override
+            protected void onPostExecute(final Boolean success) {
+                mPrgsUpload.setVisibility(ProgressBar.INVISIBLE);
+
+                if (success) {
+                    updateTrips(mToUpdateTrips);
+                    updateHistory();
+                    mPrgsUpload = (ProgressBar) getActivity().findViewById(R.id.prgs_upload);
+                    mBtnUpload = (Button) getActivity().findViewById(R.id.btn_uploadTrips);
+                    mPrgsUpload.setVisibility(ProgressBar.INVISIBLE);
+                    mBtnUpload.setClickable(true);
+                }
+
+                // Check whether an error has occurred during the upload process
+                if(!success || mError) {
+                    new AlertDialog.Builder(getActivity())
+                            .setTitle("Upload Error")
+                            .setMessage("An error occurred while uploading the trips. Please try again later!")
+                            .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                }
+                            })
+                            .setIcon(android.R.drawable.ic_dialog_alert)
+                            .show();
+                }
+            }
+
+            // Update uploaded trips
+            private void updateTrips(ArrayList<Long> trips) {
+                for (Long tripID:trips) {
+            /*ContentValues tripValues = new ContentValues();
+            tripValues.put(AtlasContract.TripEntry.COLUMN_EXPORTED, true);
+
+            // Update the record in the database
+            int nRows = getContentResolver().update(
+                    AtlasContract.TripEntry.CONTENT_URI,
+                    tripValues,
+                    AtlasContract.TripEntry._ID + " = ?",
+                    new String[]{String.valueOf(tripID)});*/
+
+                    // delete the record from the database
+                    int nRows = getActivity().getContentResolver().delete(
+                            AtlasContract.TripEntry.CONTENT_URI,
+                            AtlasContract.TripEntry._ID + " = ?",
+                            new String[]{String.valueOf(tripID)});
+                }
+
+                mTripsToUpload.clear();
+            }
+
+            @Override
+            protected void onCancelled() {
+                mUploadTask = null;
+            }
+
+            // Compresses the content to send with HTTP Post
+            private byte[] compress(String string) throws IOException {
+            /*ByteArrayOutputStream os = new ByteArrayOutputStream(string.length());
+            GZIPOutputStream gos = new GZIPOutputStream(os);
+            gos.write(string.getBytes());
+            gos.close();
+            byte[] compressed = os.toByteArray();
+            os.close();
+            return compressed;*/
+                ByteArrayOutputStream os = new ByteArrayOutputStream(string.length());
+                GZIPOutputStream gos = new GZIPOutputStream(os);
+                gos.write(string.getBytes());
+                gos.close();
+                byte[] compressed = os.toByteArray();
+                os.close();
+                return compressed;
+            }
         }
     }
 
