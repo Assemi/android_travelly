@@ -52,13 +52,13 @@
             android:layout_gravity="center_horizontal"
             android:text="Reset Password" /-->
 
-        <Button
+        <!--Button
             android:id="@+id/button_logout"
             style="?android:attr/buttonStyleSmall"
             android:layout_width="100pt"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:text="Logout" />
+            android:text="Logout" /-->
 
         <!-- Surveys -->
         <TextView

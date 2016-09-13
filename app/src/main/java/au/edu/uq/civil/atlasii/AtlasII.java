@@ -621,6 +621,8 @@ public class AtlasII extends AppCompatActivity implements
         // Loader ID
         private static final int GEO_LOADER = 0;
 
+        private Button mUploadTripsButton = null;
+
         public PlaceholderFragment() {
             mTripsToUpload = new ArrayList<Long>();
         }
@@ -707,8 +709,8 @@ public class AtlasII extends AppCompatActivity implements
                     final ListView listViewLabelledTrips = (ListView) rootView.findViewById(R.id.listView_LabelledTrips);
 
                     // Upload Trips button:
-                    Button uploadTripsButton = (Button) rootView.findViewById(R.id.btn_uploadTrips);
-                    uploadTripsButton.setOnClickListener(new View.OnClickListener() {
+                    mUploadTripsButton = (Button) rootView.findViewById(R.id.btn_uploadTrips);
+                    mUploadTripsButton.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
                             uploadTrips();
@@ -878,14 +880,14 @@ public class AtlasII extends AppCompatActivity implements
                     textViewEmail.setText("Email: " + email);
 
                     // Setting the button action listeners
-                    // Logout button:
+                    /*// Logout button:
                     Button logoutButton = (Button) rootView.findViewById(R.id.button_logout);
                     logoutButton.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
                             signOut();
                         }
-                    });
+                    });*/
                     // Take Survey button:
                     Button takeSurveyButton = (Button) rootView.findViewById(R.id.button_surveys);
                     takeSurveyButton.setOnClickListener(new View.OnClickListener() {
@@ -1085,11 +1087,12 @@ public class AtlasII extends AppCompatActivity implements
         }
 
         private static TripsUploadTask mUploadTask = null;
+        private static boolean TRIPS_UPLOADING = false;
         ArrayList<Long> mTripsToUpload = null;
         private void uploadTrips() {
-            if (mUploadTask != null) {
-                return;
-            }
+            if (mUploadTask != null)
+                if(TRIPS_UPLOADING)
+                    return;
 
             // Retrieving the username from the shared preferences
             SharedPreferences settings = getActivity().getSharedPreferences(getActivity().getApplicationContext().getString(R.string.shared_preferences), 0);
@@ -1105,35 +1108,39 @@ public class AtlasII extends AppCompatActivity implements
                     new String[]{"0", "0", "0"},
                     AtlasContract.TripEntry.COLUMN_START_TIME + " ASC");
             if (cursorLabelledTrips != null) {
-                cursorLabelledTrips.moveToFirst();
-                do {
-                    long tripID = cursorLabelledTrips.getLong(cursorLabelledTrips.getColumnIndex(AtlasContract.TripEntry._ID));
-                    mTripsToUpload.add(tripID);
-                } while (cursorLabelledTrips.moveToNext());
-            }
-            else {
-                // Error message
-                new AlertDialog.Builder(getActivity())
-                        .setTitle("No Labelled Trip(s)")
-                        .setMessage("There is no labelled trips to upload.")
-                        .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                            }
-                        })
-                        .setIcon(android.R.drawable.ic_dialog_alert)
-                        .show();
+                if(cursorLabelledTrips.getCount() > 0) {
+                    cursorLabelledTrips.moveToFirst();
+                    do {
+                        long tripID = cursorLabelledTrips.getLong(cursorLabelledTrips.getColumnIndex(AtlasContract.TripEntry._ID));
+                        mTripsToUpload.add(tripID);
+                    } while (cursorLabelledTrips.moveToNext());
+                } else {
+                    // Error message
+                    new AlertDialog.Builder(getActivity())
+                            .setTitle("No Labelled Trip(s)")
+                            .setMessage("There is no labelled trips to upload.")
+                            .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                }
+                            })
+                            .setIcon(android.R.drawable.ic_dialog_alert)
+                            .show();
+                }
             }
 
-            // Kick off a background task to perform the survey submit attempt.
-            mUploadTask = new TripsUploadTask(username, mTripsToUpload);
-            mUploadTask.execute((Void) null);
+            // Kick off a background task to perform the trips submit attempt.
+            if(mTripsToUpload.size() > 0) {
+                TRIPS_UPLOADING = true;
+                mUploadTask = new TripsUploadTask(username, mTripsToUpload);
+                mUploadTask.execute((Void) null);
+            }
         }
 
         /**
          * Upload progress
          */
         private ProgressBar mPrgsUpload;
-        private Button mBtnUpload;
+        //private Button mBtnUpload;
 
         /**
          * Represents an asynchronous task used to upload trips to the server.
@@ -1159,10 +1166,15 @@ public class AtlasII extends AppCompatActivity implements
             @Override
             protected void onPreExecute() {
                 super.onPreExecute();
+
                 mPrgsUpload = (ProgressBar) getActivity().findViewById(R.id.prgs_upload);
-                mBtnUpload = (Button) getActivity().findViewById(R.id.btn_uploadTrips);
                 mPrgsUpload.setVisibility(ProgressBar.VISIBLE);
-                mBtnUpload.setClickable(false);
+
+                if(mUploadTripsButton == null) {
+                    mUploadTripsButton = (Button) getActivity().findViewById(R.id.btn_uploadTrips);
+                }
+                mUploadTripsButton.setEnabled(false);
+
                 //"The upload is in progress ..."
                 mPrgsUpload.setProgress(0);
             }
@@ -1433,15 +1445,13 @@ public class AtlasII extends AppCompatActivity implements
 
             @Override
             protected void onPostExecute(final Boolean success) {
+
+                mPrgsUpload = (ProgressBar) getActivity().findViewById(R.id.prgs_upload);
                 mPrgsUpload.setVisibility(ProgressBar.INVISIBLE);
 
                 if (success) {
                     updateTrips(mToUpdateTrips);
                     updateHistory();
-                    mPrgsUpload = (ProgressBar) getActivity().findViewById(R.id.prgs_upload);
-                    mBtnUpload = (Button) getActivity().findViewById(R.id.btn_uploadTrips);
-                    mPrgsUpload.setVisibility(ProgressBar.INVISIBLE);
-                    mBtnUpload.setClickable(true);
                 }
 
                 // Check whether an error has occurred during the upload process
@@ -1456,6 +1466,20 @@ public class AtlasII extends AppCompatActivity implements
                             .setIcon(android.R.drawable.ic_dialog_alert)
                             .show();
                 }
+
+                if(mUploadTripsButton == null) {
+                    mUploadTripsButton = (Button) getActivity().findViewById(R.id.btn_uploadTrips);
+                    mUploadTripsButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            uploadTrips();
+                        }
+                    });
+                }
+                mUploadTripsButton.setEnabled(true);
+                mUploadTripsButton.setFocusable(true);
+
+                TRIPS_UPLOADING = false;
             }
 
             // Update uploaded trips
