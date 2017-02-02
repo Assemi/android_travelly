@@ -1,12 +1,48 @@
 <resources>
     <string name="app_name">Atlas II QLD</string>
+
+    <!-- Application tabs -->
+    <string name="tab_today">Today</string>
+    <string name="tab_history">History</string>
+    <string name="tab_profile">Profile</string>
+    <string name="tab_help">Help</string>
+    <string name="tab_info">Info</string>
+
     <string name="action_settings">Settings</string>
     <string name="action_submit">Submit</string>
     <string name="action_upload">Upload</string>
     <string name="action_label">Save</string>
+    <string name="general_ok_button">OK</string>
     <string name="section_format"></string>
     <string name="title_activity_login">Register</string>
     <string name="shared_preferences">Atlas_Prefs</string>
+
+    <!-- History tab strings -->
+    <string name="history_labelled_label">Labelled trips</string>
+    <string name="history_upload_button">Upload labelled trips</string>
+    <string name="history_unlabelled_label">Unlabelled trips</string>
+    <string name="history_unlabelled_help">Please label these trips:</string>
+
+    <!-- Profile tab strings -->
+    <string name="profile_participant_label">PARTICIPANT DETAILS:</string>
+    <string name="profile_participant_username">Username:</string>
+    <string name="profile_participant_email">Email:</string>
+    <string name="profile_survey_label">Post Travel Day Survey:</string>
+    <string name="profile_survey_button">Take Survey</string>
+
+    <!-- Info tab strings -->
+    <string name="info_app_name">ATLAS II QLD Version</string>
+    <string name="info_copyright">Copyright 2012 -</string>
+    <string name="info_university">University of Queensland, All rights reserved.</string>
+    <string name="info_more_info">For more information please visit:</string>
+
+    <!-- App messages -->
+    <string name="msg_history_no_labelled_trips">No Labelled Trips</string>
+    <string name="msg_history_no_labelled_trips_details">There are no labelled trips to upload.</string>
+    <string name="msg_tripview_purpose_required">Trip purpose required</string>
+    <string name="msg_tripview_purpose_required_details">Please specify the reason for this trip.</string>
+    <string name="msg_tripview_mode_required">Trip mode(s) required</string>
+    <string name="msg_tripview_mode_required_details">Please specify the travel modes for this trip.</string>
 
     <!-- Strings related to intent messages -->
     <string name="intent_msg_trips_exported">Trips_Exported</string>
@@ -45,6 +81,18 @@
     <string name="title_activity_trips">Trips</string>
     <string name="title_activity_trip_view">Trip Details</string>
     <string name="title_activity_demographics_survey">Demographics Survey</string>
+
+    <!-- Strings related to trips -->
+    <string name="activity_trips_unlabelled">My Unlabelled Trip(s) on</string>
+    <string name="activity_trips_labelled">My Labelled Trip(s) on</string>
+
+    <!-- Strings related to trip view -->
+    <string name="activity_tripview_label">Trip on</string>
+    <string name="activity_tripview_purpose_question">What was the main reason you took this trip?</string>
+    <string name="activity_tripview_mode_question">How did you travel?</string>
+    <string name="activity_tripview_change_button">Tap for change</string>
+    <string name="activity_tripview_origin_label">Origin</string>
+    <string name="activity_tripview_destination_label">Destination</string>
 
     <!--string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."

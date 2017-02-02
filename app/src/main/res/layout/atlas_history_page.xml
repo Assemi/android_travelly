@@ -17,7 +17,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Labelled trips" />
+        android:text="@string/history_labelled_label" />
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
@@ -34,7 +34,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:text="Upload Labelled Trips" />
+        android:text="@string/history_upload_button" />
     <ProgressBar
         android:id="@+id/prgs_upload"
         android:layout_width="300dp"
@@ -48,7 +48,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Unlabelled trips" />
+        android:text="@string/history_unlabelled_label" />
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
@@ -59,7 +59,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceSmall"
-        android:text="Please label these trips:" />
+        android:text="@string/history_unlabelled_help" />
     <ListView
         android:id="@+id/listView_UnlabelledTrips"
         android:layout_width="match_parent"

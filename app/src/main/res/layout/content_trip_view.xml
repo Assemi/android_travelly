@@ -70,7 +70,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="What was the main reason you took this trip?"/>
+            android:text="@string/activity_tripview_purpose_question"/>
         <Spinner
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -89,7 +89,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="How did you travel?"/>
+            android:text="@string/activity_tripview_mode_question"/>
         <!--Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

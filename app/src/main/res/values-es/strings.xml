@@ -1,0 +1,207 @@
+<resources>
+    <string name="app_name">Atlas II Español</string>
+
+    <!-- Application tabs -->
+    <string name="tab_today">Hoy</string>
+    <string name="tab_history">Historia</string>
+    <string name="tab_profile">Perfil</string>
+    <string name="tab_help">Ayuda</string>
+    <string name="tab_info">Informacion</string>
+
+    <string name="action_settings">Ajustes</string>
+    <string name="action_submit">Enviar</string>
+    <string name="action_upload">Subir</string>
+    <string name="action_label">Salvar</string>
+    <string name="general_ok_button">De Acuerdo</string>
+    <string name="section_format"></string>
+    <string name="title_activity_login">Registro</string>
+    <string name="shared_preferences">Atlas_Prefs</string>
+
+    <!-- History tab strings -->
+    <string name="history_labelled_label">Viajes marcados</string>
+    <string name="history_upload_button">Subir viajes marcados</string>
+    <string name="history_unlabelled_label">Viajes no marcados</string>
+    <string name="history_unlabelled_help">Por favor marque estos viajes:</string>
+
+    <!-- Profile tab strings -->
+    <string name="profile_participant_label">DETALLES DEL PARTICIPANTE:</string>
+    <string name="profile_participant_username">Nombre de Usuario:</string>
+    <string name="profile_participant_email">Correo electrónico:</string>
+    <string name="profile_survey_label">Encuesta del día después del viaje:</string>
+    <string name="profile_survey_button">Tomar Encuesta</string>
+
+    <!-- Info tab strings -->
+    <string name="info_app_name">ATLAS II Español Versión</string>
+    <string name="info_copyright">Derechos de autor 2012 –</string>
+    <string name="info_university">Universidad de Queensland, todos los derechos reservados.</string>
+    <string name="info_more_info">Para más información por favor visite:</string>
+
+    <!-- App messages -->
+    <string name="msg_history_no_labelled_trips">Sin viajes marcados</string>
+    <string name="msg_history_no_labelled_trips_details">No hay viajes marcados para cargar.</string>
+    <string name="msg_tripview_purpose_required">Se requiere el propósito del viaje</string>
+    <string name="msg_tripview_purpose_required_details">Por favor, especifique el motivo de este viaje.</string>
+    <string name="msg_tripview_mode_required">Modo(s) de disparo requerido</string>
+    <string name="msg_tripview_mode_required_details">Especifique los modos de viaje para este viaje.</string>
+
+    <!-- Strings related to intent messages -->
+    <string name="intent_msg_trips_exported">Trips_Exported</string>
+    <string name="intent_msg_trips_labelled">Trips_Labelled</string>
+    <string name="intent_msg_trips_date">Trips_Date</string>
+    <string name="intent_msg_trip_id">Trip_ID</string>
+
+    <!-- Strings related to network addresses -->
+    <!--string name="atlas_server_url">atlaservt.somee.com</string-->
+    <string name="atlas_server_url">gpem-appsrv01.soe.uq.edu.au</string>
+    <string name="atlas_help_url">http://gpem-appsrv01.soe.uq.edu.au/atlasmobileandroid_es/index.html</string>
+    <string name="path_signin">Login.aspx</string>
+    <string name="path_register">RegisterWithUsername.aspx</string>
+    <string name="path_submit_survey_data">SubmitSurveyData.aspx</string>
+    <string name="path_submit_trip_data">SubmitTripData.aspx</string>
+    <string name="path_push_request">Push.aspx</string>
+    <string name="path_active_surveys">GetActiveSurveys.aspx</string>
+
+    <!-- Strings related to login -->
+    <string name="prompt_username">Nombre de usuario (no hay espacios)</string>
+    <string name="prompt_email">Correo electrónico</string>
+    <string name="prompt_password">Contraseña</string>
+    <string name="prompt_confirm_password">Repetir contraseña</string>
+    <string name="action_register">Registro</string>
+    <string name="action_register_short">Registro</string>
+    <!--string name="error_invalid_email">This email address is invalid</string-->
+    <!--string name="error_invalid_password">This password is too short</string-->
+    <string name="error_incorrect_password">Esta contraseña es incorrecta</string>
+    <string name="error_field_required">Este campo es requerido</string>
+    <string name="error_username_invalid">Nombre de usuario no válido especificado</string>
+    <string name="error_email_invalid">Se ha especificado un correo electrónico incorrecto</string>
+    <string name="error_wrong_password">Las contraseñas no coinciden</string>
+    <string name="title_activity_survey_list">Seleccione una encuesta</string>
+    <string name="title_activity_survey">Encuesta de días posteriores al viaje</string>
+    <string name="title_activity_test">Actividad de prueba</string>
+    <string name="title_activity_trips">Excursiones</string>
+    <string name="title_activity_trip_view">Detalles del viaje</string>
+    <string name="title_activity_demographics_survey">Encuesta Demográfica</string>
+
+    <!-- Strings related to trips -->
+    <string name="activity_trips_unlabelled">Mis viajes no marcados en</string>
+    <string name="activity_trips_labelled">Mis viajes marcados en</string>
+
+    <!-- Strings related to trip view -->
+    <string name="activity_tripview_label">Viaje en</string>
+    <string name="activity_tripview_purpose_question">Cuál fue la razón principal por la que tomó este viaje?</string>
+    <string name="activity_tripview_mode_question">Como viajaste?</string>
+    <string name="activity_tripview_change_button">Toque para cambiar</string>
+    <string name="activity_tripview_origin_label">Origen</string>
+    <string name="activity_tripview_destination_label">Destino</string>
+
+    <!--string name="permission_rationale">"Contacts permissions are needed for providing email
+        completions."
+    </string-->
+
+    <!--  Strings related to demographics survey -->
+    <string-array name="array_gender">
+        <item>Please select one</item>
+        <item>Male</item>
+        <item>Female</item>
+        <item>Other</item>
+    </string-array>
+    <string-array name="array_campus">
+        <item>Please select one</item>
+        <item>Gatton</item>
+        <item>Herston</item>
+        <item>Ipswitch</item>
+        <item>St Lucia</item>
+        <item>Distance Education student not attending a campus</item>
+        <item>Other / Multi-campus</item>
+    </string-array>
+    <string-array name="array_study">
+        <item>Please select one</item>
+        <item>Full-time</item>
+        <item>Part-time</item>
+    </string-array>
+    <string-array name="array_locale">
+        <item>Please select one</item>
+        <item>Domestic</item>
+        <item>International</item>
+    </string-array>
+    <string-array name="array_licence">
+        <item>Please select one</item>
+        <item>Open licence</item>
+        <item>P2 provisional licence (Green)</item>
+        <item>P1 provisional licence (Red)</item>
+        <item>Learner’s permit</item>
+    </string-array>
+    <string-array name="array_employment_status">
+        <item>Please select one</item>
+        <item>Paid work 35 hours or more in a typical week</item>
+        <item>Paid work LESS than 35 hours in a typical week</item>
+        <item>Unemployed – seeking full-time or part-time work</item>
+        <item>Not working/volunteering - Just studying</item>
+        <item>Performing home duties or caring for children</item>
+        <item>Volunteer – unpaid job</item>
+        <item>Experiencing a long-term health condition or disability</item>
+        <item>Experiencing a short-term illness or injury</item>
+        <item>Carer - Looking after an ill or disabled student</item>
+        <item>Retired</item>
+    </string-array>
+    <string-array name="array_yesno">
+        <item>Please select ...</item>
+        <item>Yes</item>
+        <item>No</item>
+    </string-array>
+    <string-array name="array_dis_agreement">
+        <item>Please select ...</item>
+        <item>Strongly agree</item>
+        <item>Agree</item>
+        <item>Neither agree or disagree</item>
+        <item>Disagree</item>
+        <item>Strongly disagree</item>
+    </string-array>
+    <string-array name="array_day_start">
+        <item>Please select ...</item>
+        <item>At home</item>
+        <item>At work</item>
+        <item>Travelling between locations</item>
+        <item>At another location</item>
+    </string-array>
+
+    <!-- Strings related to trip labeling -->
+    <string name="pick_modes">Seleccionar modo(s)</string>
+    <string-array name="array_trip_purpose">
+        <item>Por favor elige uno</item>
+        <item>Ir en / baje del transporte público</item>
+        <item>Refuel mi vehículo</item>
+        <item>Trabajo (mi lugar de trabajo)</item>
+        <item>Trabajo (otra razón de trabajo)</item>
+        <item>Educación</item>
+        <item>Visita social</item>
+        <item>Recreación/actividades de ocio</item>
+        <item>Comer/beber</item>
+        <item>Compras</item>
+        <item>Negocios personales</item>
+        <item>Recoge/entregar algo (no relacionado con el trabajo)</item>
+        <item>Transporte de pasajeros</item>
+        <item>Estacionar/recoger un vehículo</item>
+        <item>Sólo acompañar a alguien</item>
+        <item>Vete a casa</item>
+        <item>Viaje falso</item>
+        <item>Otra razon</item>
+    </string-array>
+    <string-array name="array_trip_modes">
+        <item>Para caminar</item>
+        <item>Bicicleta</item>
+        <item>Tren</item>
+        <item>Tren ligero</item>
+        <item>Autobús escolar</item>
+        <item>Autobús público</item>
+        <item>Transportar</item>
+        <item>Autobús charter/de cortesía/otro</item>
+        <item>Coche/Vehículo de pasajeros</item>
+        <item>Motocicleta/Scooter</item>
+        <item>Furgoneta de mercancías/Camión</item>
+        <item>Taxi/Compartir paseo p.ej. Uber</item>
+        <item>Scooter movilidad</item>
+        <item>Viaje falso</item>
+        <item>Otro método</item>
+    </string-array>
+</resources>

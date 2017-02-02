@@ -197,10 +197,12 @@ public class TripsActivity extends AppCompatActivity {
 
             // Setting the page's title
             if(!mLabelledTrips) {
-                this.setTitle("My Unlabelled Trip(s) on " + mTripsDate);
+                this.setTitle(getApplicationContext().getString(R.string.activity_trips_unlabelled) +
+                        " " + mTripsDate);
             }
             else {
-                this.setTitle("My Labelled Trip(s) on " + mTripsDate);
+                this.setTitle(getApplicationContext().getString(R.string.activity_trips_labelled) +
+                        " " + mTripsDate);
             }
 
         }

@@ -3,9 +3,11 @@ package au.edu.uq.civil.atlasii;
 import android.app.Dialog;
 import android.content.ContentValues;
 import android.content.DialogInterface;
+import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -31,6 +33,7 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 import au.edu.uq.civil.atlasii.data.AtlasContract;
@@ -79,7 +82,7 @@ public class TripViewActivity extends AppCompatActivity {
                                 }
                             })
                     // Set the action buttons
-                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    .setPositiveButton(getActivity().getString(R.string.general_ok_button), new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int id) {
                             String strSelectedModes = "  ";
@@ -90,7 +93,9 @@ public class TripViewActivity extends AppCompatActivity {
                             }
                             if(!strSelectedModes.equals("  "))
                                 strSelectedModes = strSelectedModes.substring(0, strSelectedModes.lastIndexOf(","));
-                            strSelectedModes += " > Tap for change ...";
+                            strSelectedModes += (" > " +
+                                    getActivity().getString(R.string.activity_tripview_change_button) +
+                                    " ...");
                             txtTripModes.setText(strSelectedModes);
                         }
                     });
@@ -202,7 +207,8 @@ public class TripViewActivity extends AppCompatActivity {
             //TextView txtTripStart = (TextView) findViewById(R.id.txtTripStart);
             //TextView txtTripEnd = (TextView) findViewById(R.id.txtTripEnd);
             txtTripDistance.setText(String.format("%.2f", (float) (tripDistance / 1000.0)) + "km");
-            txtTripDate.setText("Trip on " + tripDate +
+            txtTripDate.setText(getApplicationContext().getString(R.string.activity_tripview_label) +
+                    " " + tripDate +
                     ", " + formatter.format(new Date(tripStartTime)) +
                     " - " + formatter.format(new Date(tripEndTime)));
             long tripDurationMillis = tripEndTime - tripStartTime;
@@ -247,7 +253,9 @@ public class TripViewActivity extends AppCompatActivity {
 
                 TextView txtTripModes = (TextView) findViewById(R.id.txtTripModes);
                 txtTripModes.setText("  " +
-                        tripModes.replaceAll(",", ", ") + " > Tap for change ...");
+                        tripModes.replaceAll(",", ", ") + " > " +
+                        getApplicationContext().getString(R.string.activity_tripview_change_button) +
+                        " ...");
             }
 
             // Retrieving trip's geo data from the database
@@ -286,11 +294,11 @@ public class TripViewActivity extends AppCompatActivity {
                     googleMap.addMarker(new MarkerOptions()
                             .position(points.get(1))
                             .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
-                            .title("Origin"));
+                            .title(getApplicationContext().getString(R.string.activity_tripview_origin_label)));
                     googleMap.addMarker(new MarkerOptions()
                             .position(points.get(points.size() - 1))
                             .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
-                            .title("Destination"));
+                            .title(getApplicationContext().getString(R.string.activity_tripview_destination_label)));
 
                     // Moving camera to zoom on map
                     /*if((minLat != 0) && (maxLat != 0)) {
@@ -372,14 +380,28 @@ public class TripViewActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    @NonNull
+    protected String[] getEnglishArray(int arrayID) {
+        Configuration configuration = getEnglishConfiguration();
+
+        return getApplicationContext().createConfigurationContext(configuration).getResources().getStringArray(arrayID);
+    }
+
+    @NonNull
+    private Configuration getEnglishConfiguration() {
+        Configuration configuration = new Configuration(getApplicationContext().getResources().getConfiguration());
+        configuration.setLocale(new Locale("en"));
+        return configuration;
+    }
+
     private void saveTrip() {
         // Checking whether both modes and purpose have been specified for the trip
         Spinner spinnerPurpose = (Spinner) findViewById(R.id.spinner_trip_purpose);
         long selectedPurpose = spinnerPurpose.getSelectedItemId();
         if(selectedPurpose == 0) {
             new AlertDialog.Builder(this)
-                    .setTitle("Trip purpose required")
-                    .setMessage("Please specify the reason for this trip.")
+                    .setTitle(getApplicationContext().getString(R.string.msg_tripview_purpose_required))
+                    .setMessage(getApplicationContext().getString(R.string.msg_tripview_purpose_required_details))
                     .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
                         }
@@ -396,8 +418,8 @@ public class TripViewActivity extends AppCompatActivity {
         }
         if (mTripModes == null) {
             new AlertDialog.Builder(this)
-                    .setTitle("Trip mode(s) required")
-                    .setMessage("Please specify the travel modes for this trip.")
+                    .setTitle(getApplicationContext().getString(R.string.msg_tripview_mode_required))
+                    .setMessage(getApplicationContext().getString(R.string.msg_tripview_mode_required_details))
                     .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
                         }
@@ -414,9 +436,10 @@ public class TripViewActivity extends AppCompatActivity {
         }
 
         // Retrieving trip purpose and mode strings
-        String strTripPurpose = spinnerPurpose.getSelectedItem().toString();
+        //String strTripPurpose = spinnerPurpose.getSelectedItem().toString();
+        String strTripPurpose = getEnglishArray(R.array.array_trip_purpose)[spinnerPurpose.getSelectedItemPosition()];
         String strTripModes = "";
-        String[] tripModes = getResources().getStringArray(R.array.array_trip_modes);
+        String[] tripModes = getEnglishArray(R.array.array_trip_modes);
         for (Object o:mTripModes) {
             strTripModes += tripModes[Integer.valueOf(o.toString())];
             strTripModes += ",";

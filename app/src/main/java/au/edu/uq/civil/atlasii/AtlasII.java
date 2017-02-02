@@ -876,8 +876,10 @@ public class AtlasII extends AppCompatActivity implements
                     // Showing the participant's username and email
                     TextView textViewUsername = (TextView) rootView.findViewById(R.id.textview_profile_username);
                     TextView textViewEmail = (TextView) rootView.findViewById(R.id.textview_profile_email);
-                    textViewUsername.setText("Username: " + username);
-                    textViewEmail.setText("Email: " + email);
+                    textViewUsername.setText(getActivity().getString(R.string.profile_participant_username) +
+                            " " + username);
+                    textViewEmail.setText(getActivity().getString(R.string.profile_participant_email) +
+                            " " + email);
 
                     // Setting the button action listeners
                     /*// Logout button:
@@ -932,10 +934,10 @@ public class AtlasII extends AppCompatActivity implements
                     // Loading the about page
                     rootView = inflater.inflate(R.layout.atlas_about_page, container, false);
                     textView = (TextView) rootView.findViewById(R.id.txtAboutAtlas);
-                    textView.setText("ATLAS II QLD Version " + pVersion + "\r\n" +
-                            "Copyright 2012 - " + curCal.get(Calendar.YEAR) + "\r\n" +
-                            "University of Queensland, All rights reserved." + "\r\n" +
-                            "For more information please visit:" + "\r\n" +
+                    textView.setText(getActivity().getString(R.string.info_app_name) + " " + pVersion + "\r\n" +
+                            getActivity().getString(R.string.info_copyright) + " " + curCal.get(Calendar.YEAR) + "\r\n" +
+                            getActivity().getString(R.string.info_university) + "\r\n" +
+                            getActivity().getString(R.string.info_more_info) + "\r\n" +
                             Html.fromHtml(
                                     "<a href=\"http://civil.uq.edu.au/atlas\">civil.uq.edu.au/atlas</a>"));
                     textView.setMovementMethod(LinkMovementMethod.getInstance());
@@ -1115,8 +1117,8 @@ public class AtlasII extends AppCompatActivity implements
                 } else {
                     // Error message
                     new AlertDialog.Builder(getActivity())
-                            .setTitle("No Labelled Trip(s)")
-                            .setMessage("There is no labelled trips to upload.")
+                            .setTitle(getActivity().getString(R.string.msg_history_no_labelled_trips))
+                            .setMessage(getActivity().getString(R.string.msg_history_no_labelled_trips_details))
                             .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int which) {
                                 }
@@ -1556,15 +1558,15 @@ public class AtlasII extends AppCompatActivity implements
         public CharSequence getPageTitle(int position) {
             switch (position) {
                 case 0:
-                    return "Today";
+                    return getApplicationContext().getString(R.string.tab_today);
                 case 1:
-                    return "History";
+                    return getApplicationContext().getString(R.string.tab_history);
                 case 2:
-                    return "Profile";
+                    return getApplicationContext().getString(R.string.tab_profile);
                 case 3:
-                    return "Help";
+                    return getApplicationContext().getString(R.string.tab_help);
                 case 4:
-                    return "Info";
+                    return getApplicationContext().getString(R.string.tab_info);
             }
             return null;
         }
