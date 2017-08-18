@@ -1,0 +1,195 @@
+<resources>
+    <string name="app_name">اطلس ۲</string>
+
+    <!-- Application tabs -->
+    <string name="tab_today">امروز</string>
+    <string name="tab_history">تاریخچه</string>
+    <string name="tab_profile">نمایه</string>
+    <string name="tab_help">راهنما</string>
+    <string name="tab_info">درباره</string>
+
+    <string name="action_settings">تنظیمات</string>
+    <string name="action_submit">ارسال</string>
+    <string name="action_upload">بارگذاری</string>
+    <string name="action_label">ذخیره</string>
+    <string name="general_ok_button">تأیید</string>
+    <string name="section_format"></string>
+    <string name="title_activity_login">ثبت</string>
+    <string name="shared_preferences">Atlas_Prefs</string>
+
+    <!-- History tab strings -->
+    <string name="history_labelled_label">سفرهای برچسبدار</string>
+    <string name="history_upload_button">بارگذاری سفرهای برچسبدار</string>
+    <string name="history_unlabelled_label">سفرهای بدون برچسب</string>
+    <string name="history_unlabelled_help">لطفاً سفرهای ذیل را برچسب گذاری کنید:</string>
+
+    <!-- Profile tab strings -->
+    <string name="profile_participant_label">مشخصات شرکت کننده:</string>
+    <string name="profile_participant_username">کاربر:</string>
+    <string name="profile_participant_email">Email:</string>
+    <string name="profile_survey_label">پرسشنامه پایان روز</string>
+    <string name="profile_survey_button">مشاهده پرسشنامه</string>
+
+    <!-- Info tab strings -->
+    <string name="info_app_name">اطلس ۲ فارسی</string>
+    <string name="info_copyright">حق ثبت محفوظ است 2012-</string>
+    <string name="info_university">دانشگاه کویینزلند، استرالیا</string>
+    <string name="info_more_info">برای اطلاعات بیشتر لطفاً به سایت ذیل مراجعه کنید:</string>
+
+    <!-- App messages -->
+    <string name="msg_history_no_labelled_trips">سفر برچسب گذاری شده یافت نشد</string>
+    <string name="msg_history_no_labelled_trips_details">سفر برچسب گذاری شده برای بارگذاری وجود ندارد.</string>
+    <string name="msg_tripview_purpose_required">هدف سفر</string>
+    <string name="msg_tripview_purpose_required_details">لطفاً هدف سفر را مشخص کنید.</string>
+    <string name="msg_tripview_mode_required">وسیله سفر</string>
+    <string name="msg_tripview_mode_required_details">لطفاً وسیله سفر را مشخص کنید.</string>
+
+    <!-- Strings related to intent messages -->
+    <string name="intent_msg_trips_exported">Trips_Exported</string>
+    <string name="intent_msg_trips_labelled">Trips_Labelled</string>
+    <string name="intent_msg_trips_date">Trips_Date</string>
+    <string name="intent_msg_trip_id">Trip_ID</string>
+
+    <!-- Strings related to network addresses -->
+    <!--string name="atlas_server_url">atlaservt.somee.com</string-->
+    <string name="atlas_server_url">gpem-appsrv01.soe.uq.edu.au</string>
+    <string name="atlas_help_url">http://gpem-appsrv01.soe.uq.edu.au/atlasmobileandroid/index.html</string>
+    <string name="path_signin">Login.aspx</string>
+    <string name="path_register">RegisterWithUsername.aspx</string>
+    <string name="path_submit_survey_data">SubmitSurveyData.aspx</string>
+    <string name="path_submit_trip_data">SubmitTripData.aspx</string>
+    <string name="path_push_request">Push.aspx</string>
+    <string name="path_active_surveys">GetActiveSurveys.aspx</string>
+
+    <!-- Strings related to login -->
+    <string name="prompt_username">نام کاربری (بدون فاصله)</string>
+    <string name="prompt_email">پست الکترونیک</string>
+    <string name="prompt_password">رمز عبور</string>
+    <string name="prompt_confirm_password">تکرار رمز عبور</string>
+    <string name="action_register">ثبت</string>
+    <string name="action_register_short">ثبت</string>
+    <!--string name="error_invalid_email">This email address is invalid</string-->
+    <!--string name="error_invalid_password">This password is too short</string-->
+    <string name="error_incorrect_password">رمز عبور نادرست است</string>
+    <string name="error_field_required">این گزینه مورد نیاز است</string>
+    <string name="error_username_invalid">نام کاربری صحیح نیست</string>
+    <string name="error_email_invalid">پست الکترونیک صحیح نیست</string>
+    <string name="error_wrong_password">رمزهای عبور وارد شده یکسان نیستند</string>
+    <string name="title_activity_survey_list">انتخاب پرسشنامه</string>
+    <string name="title_activity_survey">پرسشنامه پایان روز</string>
+    <string name="title_activity_test">فعالیت آزمایشی</string>
+    <string name="title_activity_trips">سفرها</string>
+    <string name="title_activity_trip_view">جزئیات سفر</string>
+    <string name="title_activity_demographics_survey">پرسشنامه شرایط فردی</string>
+
+    <!-- Strings related to trips -->
+    <string name="activity_trips_unlabelled">سفرهای برچسب گذاری نشده در</string>
+    <string name="activity_trips_labelled">سفرهای برچسب گذاری شده در</string>
+
+    <!-- Strings related to trip view -->
+    <string name="activity_tripview_label">سفر در</string>
+    <string name="activity_tripview_purpose_question">دلیل اصلی این سفر چیست؟</string>
+    <string name="activity_tripview_mode_question">از چه وسیله نقلیه ای برای این سفر استفاده کردید؟</string>
+    <string name="activity_tripview_change_button">برای تغییر انتخاب کنید</string>
+    <string name="activity_tripview_origin_label">مبدأ</string>
+    <string name="activity_tripview_destination_label">مقصد</string>
+
+    <!--string name="permission_rationale">"Contacts permissions are needed for providing email
+        completions."
+    </string-->
+
+    <!--  Strings related to demographics survey -->
+    <string-array name="array_gender">
+        <item>لطفاً یک گزینه انتخاب کنید</item>
+        <item>مرد</item>
+        <item>زن</item>
+        <item>--</item>
+    </string-array>
+    <string-array name="array_campus">
+        <item>لطفاً یک گزینه انتخاب کنید</item>
+        <item>--</item>
+    </string-array>
+    <string-array name="array_study">
+        <item>لطفاً یک گزینه انتخاب کنید</item>
+        <item>تمام وقت</item>
+        <item>پاره وقت</item>
+    </string-array>
+    <string-array name="array_locale">
+        <item>لطفاً یک گزینه انتخاب کنید</item>
+        <item>داخلی</item>
+        <item>بین المللی</item>
+    </string-array>
+    <string-array name="array_licence">
+        <item>لطفاً یک گزینه انتخاب کنید</item>
+        <item>گواهینامه پایه ۲</item>
+        <item>--</item>
+    </string-array>
+    <string-array name="array_employment_status">
+        <item>لطفاً یک گزینه انتخاب کنید</item>
+        <item>کار تمام وقت</item>
+        <item>کار پاره وقت</item>
+        <item>بیکار - جویای کار</item>
+        <item>دانشجو</item>
+        <item>خانه دار</item>
+        <item>کار داوطلبانه بدون دستمزد</item>
+        <item>ناتوان کاری</item>
+        <item>بازنشسته</item>
+    </string-array>
+    <string-array name="array_yesno">
+        <item>لطفاً یک گزینه انتخاب کنید</item>
+        <item>بلی</item>
+        <item>خیر</item>
+    </string-array>
+    <string-array name="array_dis_agreement">
+        <item>لطفاً یک گزینه انتخاب کنید</item>
+        <item>بشدت موافقم</item>
+        <item>موافقم</item>
+        <item>نه موافق و نه مخالفم</item>
+        <item>مخالفم</item>
+        <item>بشدت مخالفم</item>
+    </string-array>
+    <string-array name="array_day_start">
+        <item>لطفاً یک گزینه انتخاب کنید</item>
+        <item>در خانه</item>
+        <item>در محل کار</item>
+        <item>در حال تردد</item>
+        <item>در محلی دیگر</item>
+    </string-array>
+
+    <!-- Strings related to trip labeling -->
+    <string name="pick_modes">لطفاً وسایل نفلیه را مشخص نمایید</string>
+    <string-array name="array_trip_purpose">
+        <item>لطفاً یک گزینه انتخاب کنید</item>
+        <item>سوار/پیاده شدن وسیله نقلیه عمومی</item>
+        <item>بنزین زدن</item>
+        <item>رفتن به محل کار اصلی</item>
+        <item>رفتن به محل کار دیگر</item>
+        <item>آموزش</item>
+        <item>دیدار دیگران</item>
+        <item>تفریح</item>
+        <item>رستوران/کافی شاپ</item>
+        <item>خرید</item>
+        <item>کار شخصی</item>
+        <item>انتقال کالا/بسته</item>
+        <item>انتقال شخص دیگر</item>
+        <item>برداشتن/پارک کردن ماشین</item>
+        <item>همراهی فرد دیگر</item>
+        <item>رفتن به خانه</item>
+        <item>سفر غیر واقعی</item>
+        <item>دلیل دیگر</item>
+    </string-array>
+    <string-array name="array_trip_modes">
+        <item>پیاده</item>
+        <item>دوچرخه</item>
+        <item>مترو</item>
+        <item>سرویس</item>
+        <item>اتوبوس</item>
+        <item>خودروی شخصی</item>
+        <item>موتور</item>
+        <item>کامیون</item>
+        <item>تاکسی</item>
+        <item>مسافربر شخصی</item>
+        <item>سفر غیر واقعی</item>
+        <item>وسیله دیگر</item>
+    </string-array>
+</resources>

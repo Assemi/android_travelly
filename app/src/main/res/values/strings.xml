@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Atlas II QLD</string>
+    <string name="app_name">Atlas II</string>
 
     <!-- Application tabs -->
     <string name="tab_today">Today</string>
