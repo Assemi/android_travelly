@@ -98,51 +98,64 @@
         completions."
     </string-->
 
-    <!--  Strings related to demographics survey -->
+    <!--  Strings related to demographics survey questions -->
+    <string name="str_demographics_q1">What is your gender?</string>
+    <string name="str_demographics_q2">What is your marital status?</string>
+    <string name="str_demographics_q3">Where are you from?</string>
+    <string name="str_demographics_q4">What is your highest degree?</string>
+    <string name="str_demographics_q5">What is your year of birth?</string>
+    <string name="str_demographics_q6">Which of the following best describes your current employment status?</string>
+    <string name="str_demographics_q7">Do you own or have regular access to a motor vehicle?</string>
+    <string name="str_demographics_q8">Do you own a public transportation payment card?</string>
+    <string name="str_demographics_q9">Do you own or have regular access to an adult bicycle?</string>
+    <string name="str_demographics_q10">Do you have a driver`s licence?</string>
+    <string name="str_demographics_q11">Do you currently require any help or assistance travelling around due to a disability or illness?</string>
+    <string name="str_demographics_q12">Are you a student?</string>
+    <!--  Strings related to demographics survey responses -->
+    <string name="lic_no">No Licence</string>
+    <string name="lic_car">Car Licence</string>
+    <string name="lic_motor">Motorcycle Licence</string>
+    <string name="lic_other">Other Licence</string>
     <string-array name="array_gender">
         <item>Please select one</item>
         <item>Male</item>
         <item>Female</item>
-        <item>Other</item>
     </string-array>
     <string-array name="array_campus">
         <item>Please select one</item>
-        <item>Gatton</item>
-        <item>Herston</item>
-        <item>Ipswitch</item>
-        <item>St Lucia</item>
-        <item>Distance Education student not attending a campus</item>
-        <item>Other / Multi-campus</item>
+        <item>Single</item>
+        <item>Married</item>
+        <item>Other</item>
     </string-array>
     <string-array name="array_study">
         <item>Please select one</item>
-        <item>Full-time</item>
-        <item>Part-time</item>
+        <item>Tehran</item>
+        <item>Other cities in Iran</item>
+        <item>Other countries</item>
     </string-array>
     <string-array name="array_locale">
         <item>Please select one</item>
-        <item>Domestic</item>
-        <item>International</item>
+        <item>Primary certificate</item>
+        <item>Secondary certificate (diploma)</item>
+        <item>Bachelor`s degree</item>
+        <item>Master`s degree</item>
+        <item>PhD or higher</item>
     </string-array>
     <string-array name="array_licence">
         <item>Please select one</item>
         <item>Open licence</item>
         <item>P2 provisional licence (Green)</item>
         <item>P1 provisional licence (Red)</item>
-        <item>Learner’s permit</item>
+        <item>Learner`s permit</item>
     </string-array>
     <string-array name="array_employment_status">
         <item>Please select one</item>
-        <item>Paid work 35 hours or more in a typical week</item>
-        <item>Paid work LESS than 35 hours in a typical week</item>
-        <item>Unemployed – seeking full-time or part-time work</item>
-        <item>Not working/volunteering - Just studying</item>
-        <item>Performing home duties or caring for children</item>
-        <item>Volunteer – unpaid job</item>
+        <item>37 hours or more in a typical week (full time)</item>
+        <item>LESS than 37 hours in a typical week</item>
+        <item>Not employed, looking for a job</item>
         <item>Experiencing a long-term health condition or disability</item>
         <item>Experiencing a short-term illness or injury</item>
-        <item>Carer - Looking after an ill or disabled student</item>
-        <item>Retired</item>
+        <item>Not employed, no health problem, not looking for a job (e.g., a full time student or retired)</item>
     </string-array>
     <string-array name="array_yesno">
         <item>Please select ...</item>
@@ -159,10 +172,11 @@
     </string-array>
     <string-array name="array_day_start">
         <item>Please select ...</item>
-        <item>At home</item>
-        <item>At work</item>
-        <item>Travelling between locations</item>
-        <item>At another location</item>
+        <item>Yes, a primary/secondary student</item>
+        <item>Yes, an undergraduate student</item>
+        <item>Yes, a Master`s student</item>
+        <item>Yes, a PhD student</item>
+        <item>No</item>
     </string-array>
 
     <!-- Strings related to trip labeling -->

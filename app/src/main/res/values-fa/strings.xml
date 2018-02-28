@@ -14,7 +14,7 @@
     <string name="action_label">ذخیره</string>
     <string name="general_ok_button">تأیید</string>
     <string name="section_format"></string>
-    <string name="title_activity_login">ثبت</string>
+    <string name="title_activity_login">ثبت نام</string>
     <string name="shared_preferences">Atlas_Prefs</string>
 
     <!-- History tab strings -->
@@ -63,18 +63,18 @@
 
     <!-- Strings related to login -->
     <string name="prompt_username">نام کاربری (بدون فاصله)</string>
-    <string name="prompt_email">پست الکترونیک</string>
-    <string name="prompt_password">رمز عبور</string>
-    <string name="prompt_confirm_password">تکرار رمز عبور</string>
-    <string name="action_register">ثبت</string>
-    <string name="action_register_short">ثبت</string>
+    <string name="prompt_email">پست الکترونیک (ایمیل)</string>
+    <string name="prompt_password">گذرواژه</string>
+    <string name="prompt_confirm_password">تکرار گذرواژه</string>
+    <string name="action_register">ثبت نام</string>
+    <string name="action_register_short">ثبت نام</string>
     <!--string name="error_invalid_email">This email address is invalid</string-->
     <!--string name="error_invalid_password">This password is too short</string-->
-    <string name="error_incorrect_password">رمز عبور نادرست است</string>
+    <string name="error_incorrect_password">گذرواژه نادرست است</string>
     <string name="error_field_required">این گزینه مورد نیاز است</string>
     <string name="error_username_invalid">نام کاربری صحیح نیست</string>
     <string name="error_email_invalid">پست الکترونیک صحیح نیست</string>
-    <string name="error_wrong_password">رمزهای عبور وارد شده یکسان نیستند</string>
+    <string name="error_wrong_password">گذرواژه های شده یکسان نیستند</string>
     <string name="title_activity_survey_list">انتخاب پرسشنامه</string>
     <string name="title_activity_survey">پرسشنامه پایان روز</string>
     <string name="title_activity_test">فعالیت آزمایشی</string>
@@ -98,26 +98,48 @@
         completions."
     </string-->
 
-    <!--  Strings related to demographics survey -->
+    <!--  Strings related to demographics survey questions -->
+    <string name="str_demographics_q1">جنیست شما چیست؟</string>
+    <string name="str_demographics_q2">وضعیت تأهل شما چیست؟</string>
+    <string name="str_demographics_q3">اهل کجا هستید؟</string>
+    <string name="str_demographics_q4">آخرین مدرک تحصیلی شما چیست؟</string>
+    <string name="str_demographics_q5">متولد چه سالی هستید؟</string>
+    <string name="str_demographics_q6">کدام یک از گزینه های زیر بهترین توصیف از شرایط شغلی شما میباشد؟</string>
+    <string name="str_demographics_q7">آیا دسترسی دائم به خودروی شخصی و یا موتورسیکلت دارید؟</string>
+    <string name="str_demographics_q8">آیا کارت بلیت استفاده از حمل و نقل همگانی (مترو و اتوبوس) دارید؟</string>
+    <string name="str_demographics_q9">آیا دسترسی دائم به یک دوچرخه یا سیستم حمل و نقل غیرموتوری دارید؟</string>
+    <string name="str_demographics_q10">آیا گواهینامه رانندگی دارید؟</string>
+    <string name="str_demographics_q11">آیا در حال حاضر به دلیل بیماری خاص یا معلولیت به یک نفر همراه به منظور کمک در جابجایی های روزانه نیاز دارید؟</string>
+    <string name="str_demographics_q12">آیا دانش آموز یا دانشجو هستید؟</string>
+    <!--  Strings related to demographics survey responses -->
+    <string name="lic_no">ندارم</string>
+    <string name="lic_car">گواهینامه سواری دارم</string>
+    <string name="lic_motor">گواهینامه موتورسیکلت دارم</string>
+    <string name="lic_other">گواهینامه دیگر دارم</string>
     <string-array name="array_gender">
         <item>لطفاً یک گزینه انتخاب کنید</item>
         <item>مرد</item>
         <item>زن</item>
-        <item>--</item>
     </string-array>
     <string-array name="array_campus">
         <item>لطفاً یک گزینه انتخاب کنید</item>
-        <item>--</item>
+        <item>مجرد</item>
+        <item>متأهل</item>
+        <item>سایر موارد</item>
     </string-array>
     <string-array name="array_study">
         <item>لطفاً یک گزینه انتخاب کنید</item>
-        <item>تمام وقت</item>
-        <item>پاره وقت</item>
+        <item>تهران</item>
+        <item>شهرستان</item>
+        <item>سایر کشورها</item>
     </string-array>
     <string-array name="array_locale">
         <item>لطفاً یک گزینه انتخاب کنید</item>
-        <item>داخلی</item>
-        <item>بین المللی</item>
+        <item>سیکل یا پایینتر</item>
+        <item>دیپلم</item>
+        <item>کارشناسی</item>
+        <item>کارشناسی ارشد</item>
+        <item>دکترا و بالاتر</item>
     </string-array>
     <string-array name="array_licence">
         <item>لطفاً یک گزینه انتخاب کنید</item>
@@ -126,14 +148,12 @@
     </string-array>
     <string-array name="array_employment_status">
         <item>لطفاً یک گزینه انتخاب کنید</item>
-        <item>کار تمام وقت</item>
-        <item>کار پاره وقت</item>
-        <item>بیکار - جویای کار</item>
-        <item>دانشجو</item>
-        <item>خانه دار</item>
-        <item>کار داوطلبانه بدون دستمزد</item>
-        <item>ناتوان کاری</item>
-        <item>بازنشسته</item>
+        <item>در هفته بیشتر از ۳۷ ساعت شاغل هستم</item>
+        <item>در هفته کمتر از ۳۷ ساعت شاغل هستم</item>
+        <item>شاغل نیستم و به دنبال کار میگردم</item>
+        <item>یک دوره طولانی بیماری یا ناتوانی را سپری میکنم</item>
+        <item>یک دوره کوتاه مدت بیماری یا جراحت را سپری میکنم</item>
+        <item>شاغل نیستم، بیماری ندارم و به دنبال کار نمیگردم (مانند دانشجوی تمام وقت یا بازنشسته)</item>
     </string-array>
     <string-array name="array_yesno">
         <item>لطفاً یک گزینه انتخاب کنید</item>
@@ -150,10 +170,11 @@
     </string-array>
     <string-array name="array_day_start">
         <item>لطفاً یک گزینه انتخاب کنید</item>
-        <item>در خانه</item>
-        <item>در محل کار</item>
-        <item>در حال تردد</item>
-        <item>در محلی دیگر</item>
+        <item>بلی، دانش آموز</item>
+        <item>بلی، دانشجوی کاردانی یا کارشناسی</item>
+        <item>بلی، دانشجوی کارشناسی ارشد</item>
+        <item>بلی، دانشجوی دکترا</item>
+        <item>خیر</item>
     </string-array>
 
     <!-- Strings related to trip labeling -->

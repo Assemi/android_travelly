@@ -22,7 +22,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="What is your sex?" />
+            android:text="@string/str_demographics_q1" />
         <Spinner
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -35,13 +35,13 @@
             android:layout_height="1dp"
             android:background="@android:color/darker_gray"/>
 
-        <!-- Campus question -->
+        <!-- Marital question -->
         <TextView
             android:layout_marginTop="30dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="Which campus do you attend?" />
+            android:text="@string/str_demographics_q2" />
         <Spinner
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -54,13 +54,13 @@
             android:layout_height="1dp"
             android:background="@android:color/darker_gray"/>
 
-        <!-- Study question -->
+        <!-- Locale question -->
         <TextView
             android:layout_marginTop="30dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="Do you study full-time or part-time?" />
+            android:text="@string/str_demographics_q3" />
         <Spinner
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -73,13 +73,13 @@
             android:layout_height="1dp"
             android:background="@android:color/darker_gray"/>
 
-        <!-- Locale question -->
+        <!-- Degree question -->
         <TextView
             android:layout_marginTop="30dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="Are you a domestic or international student?" />
+            android:text="@string/str_demographics_q4" />
         <Spinner
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -98,7 +98,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="What is your year of birth?" />
+            android:text="@string/str_demographics_q5" />
         <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -116,7 +116,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="Which of the following best describes your current employment status?" />
+            android:text="@string/str_demographics_q6" />
         <Spinner
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -129,7 +129,7 @@
             android:layout_height="1dp"
             android:background="@android:color/darker_gray"/>
 
-        <!-- Work question -->
+        <!-- Work question ->
         <TextView
             android:id="@+id/lblWork"
             android:layout_marginTop="30dp"
@@ -147,7 +147,7 @@
             android:id="@+id/sepWork"
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="@android:color/darker_gray"/>
+            android:background="@android:color/darker_gray"/>-->
 
         <!-- Car accessibility question -->
         <TextView
@@ -155,7 +155,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="Do you own or have regular access to a motor vehicle?" />
+            android:text="@string/str_demographics_q7" />
         <Spinner
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -174,7 +174,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="Do you own a go card?" />
+            android:text="@string/str_demographics_q8" />
         <Spinner
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -193,7 +193,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="Do you own or have regular access to an adult bicycle in good working order or have a CityCycle subscription?" />
+            android:text="@string/str_demographics_q9" />
         <Spinner
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -212,40 +212,40 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="Driver`s Licence?" />
+            android:text="@string/str_demographics_q10" />
         <CheckBox android:id="@+id/chkLicence1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="No Licence"
+            android:text="@string/lic_no"
             android:onClick="onCheckboxClicked"/>
         <CheckBox android:id="@+id/chkLicence2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Car Licence"
+            android:text="@string/lic_car"
             android:onClick="onCheckboxClicked"/>
-        <Spinner
+        <!--Spinner
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/spinnerLicenceCar"
             android:layout_gravity="end"
             android:spinnerMode="dropdown"
-            android:entries="@array/array_licence"/>
+            android:entries="@array/array_licence"/-->
         <CheckBox android:id="@+id/chkLicence3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Motorcycle Licence"
+            android:text="@string/lic_motor"
             android:onClick="onCheckboxClicked"/>
-        <Spinner
+        <!--Spinner
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/spinnerLicenceMotor"
             android:layout_gravity="end"
             android:spinnerMode="dropdown"
-            android:entries="@array/array_licence"/>
+            android:entries="@array/array_licence"/-->
         <CheckBox android:id="@+id/chkLicence4"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Other Licence"
+            android:text="@string/lic_other"
             android:onClick="onCheckboxClicked"/>
         <View
             android:layout_width="match_parent"
@@ -258,7 +258,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="Do you currently require any help or assistance travelling around due to a disability or illness?" />
+            android:text="@string/str_demographics_q11" />
         <Spinner
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -271,7 +271,7 @@
             android:layout_height="1dp"
             android:background="@android:color/darker_gray"/>
 
-        <!-- Disability question -->
+        <!-- Disability question ->
         <TextView
             android:id="@+id/lblDisability"
             android:layout_marginTop="30dp"
@@ -314,7 +314,7 @@
             android:id="@+id/sepDisability"
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="@android:color/darker_gray"/>
+            android:background="@android:color/darker_gray"/-->
 
         <!-- Travel day question 1 -->
         <TextView
@@ -323,7 +323,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="Where were you at 04:00AM?"/>
+            android:text="@string/str_demographics_q12"/>
         <Spinner
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -337,7 +337,7 @@
             android:layout_height="1dp"
             android:background="@android:color/darker_gray"/>
 
-        <!-- Travel day question 2 -->
+        <!-- Travel day question 2 ->
         <TextView
             android:id="@+id/lblLeaveIntention"
             android:layout_marginTop="30dp"
@@ -358,7 +358,7 @@
             android:layout_height="1dp"
             android:background="@android:color/darker_gray"/>
 
-        <!-- Travel day question 3 -->
+        <!- Travel day question 3 ->
         <TextView
             android:id="@+id/lblActivities"
             android:layout_marginTop="30dp"
@@ -388,7 +388,7 @@
             android:layout_height="1dp"
             android:background="@android:color/darker_gray"/>
 
-        <!-- Travel day question 4 -->
+        <!- Travel day question 4 ->
         <TextView
             android:layout_marginTop="30dp"
             android:layout_width="match_parent"
@@ -406,7 +406,7 @@
             android:layout_height="1dp"
             android:background="@android:color/darker_gray"/>
 
-        <!-- Travel day question 5 -->
+        <!- Travel day question 5 ->
         <TextView
             android:layout_marginTop="30dp"
             android:layout_width="match_parent"
@@ -422,6 +422,6 @@
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="@android:color/darker_gray"/>
+            android:background="@android:color/darker_gray"/-->
     </LinearLayout>
 </ScrollView>

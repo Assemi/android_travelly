@@ -98,7 +98,24 @@
         completions."
     </string-->
 
-    <!--  Strings related to demographics survey -->
+    <!--  Strings related to demographics survey questions -->
+    <string name="str_demographics_q1">What is your gender?</string>
+    <string name="str_demographics_q2">What is your marital status?</string>
+    <string name="str_demographics_q3">Where are you from?</string>
+    <string name="str_demographics_q4">What is your highest degree?</string>
+    <string name="str_demographics_q5">What is your year of birth?</string>
+    <string name="str_demographics_q6">Which of the following best describes your current employment status?</string>
+    <string name="str_demographics_q7">Do you own or have regular access to a motor vehicle?</string>
+    <string name="str_demographics_q8">Do you own a public transportation payment card?</string>
+    <string name="str_demographics_q9">Do you own or have regular access to an adult bicycle?</string>
+    <string name="str_demographics_q10">Do you have a driver`s licence?</string>
+    <string name="str_demographics_q11">Do you currently require any help or assistance travelling around due to a disability or illness?</string>
+    <string name="str_demographics_q12">Are you a student?</string>
+    <!--  Strings related to demographics survey responses -->
+    <string name="lic_no">No Licence</string>
+    <string name="lic_car">Car Licence</string>
+    <string name="lic_motor">Motorcycle Licence</string>
+    <string name="lic_other">Other Licence</string>
     <string-array name="array_gender">
         <item>Please select one</item>
         <item>Male</item>
